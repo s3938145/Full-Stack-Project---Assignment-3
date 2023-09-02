@@ -19,29 +19,9 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use(express.json());
 app.use(passport.initialize());
 app.use((req, res, next) => {
-  console.log("Debugging Middleware: ", {body: req.body, params: req.params, query: req.query});
+  console.log("Debugging Middleware: ", req.user);
   next();
 });
-
-// Middleware to populate all parents
-const populateAllParents = async (req, res, next) => {
-  const populateParents = async (category) => {
-    let currentCategory = category;
-    while (currentCategory.parent) {
-      currentCategory.parent = await Category.findById(currentCategory.parent);
-      currentCategory = currentCategory.parent;
-    }
-  };
-
-  try {
-    let categories = await Category.find({});
-    await Promise.all(categories.map(populateParents));
-    req.categoriesWithParents = categories;  // Attach the populated categories to the request object
-    next();
-  } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-};
 
 
 // Middleware to check user role
@@ -117,51 +97,46 @@ app.get('/', (req, res) => {
 
 // Create a New Category
 app.post('/addCategory', async (req, res) => {
-  const { name, parent } = req.body;
-
-  // Find the parent category by its name
-  const parentCategory = await Category.findOne({ name: parent });
-
-  if (parent && !parentCategory) {
-    return res.status(404).json({ message: 'Parent category not found' });
-  }
-
-  // Use the ObjectId of the parent category
-  const newCategory = new Category({
-    name,
-    parent: parent ? parentCategory._id : null
-  });
-
+  console.log("Request Body:", req.body);  // Log the request body
   try {
+    const { name, parent, additionalAttributes } = req.body;
+    const newCategory = new Category({
+      name,
+      parent,
+      additionalAttributes,
+    });
     await newCategory.save();
-    res.status(201).json(newCategory);
+    console.log("New Category:", newCategory);  // Log the new category
+    res.status(201).json({ message: 'Category added', newCategory });
   } catch (error) {
-    console.log('Error:', error);
+    console.log("Error:", error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
-// Read All Categories with all their parents
-app.get('/getCategories', populateAllParents, async(req, res) => {
-    res.status(200).json(req.categoriesWithParents);  // Use the populated categories from the request object
+// Read All Categories
+app.get('/getCategories', async (req, res) => {
+  try {
+    const categories = await Category.find({});
+    console.log("Fetched Categories:", categories);
+    res.status(200).json(categories);
+  } catch (error) {
+    console.log("Error fetching categories:", error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
-);
+});
+
 
 // Read a Single Category by Name
-app.get('/getCategoryByName/:name', populateAllParents, async (req, res) => {
-    const { name } = req.params;
+app.get('/getCategoryByName/:name', async (req, res) => {
+  const { name } = req.params;
+  const category = await Category.findOne({ name: name });
+  if (!category) {
 
-    // Use req.categoriesWithParents to find the category by name
-    const category = req.categoriesWithParents.find(cat => cat.name === name);
-
-    if (!category) {
-      return res.status(404).json({ message: 'Category not found' });
-    }
-    res.status(200).json(category);
+    return res.status(404).json({ message: 'Category not found' });
   }
-);
-
-
+  res.status(200).json(category);
+});
 
 
 // Update a Category by Name
@@ -189,7 +164,7 @@ app.put('/updateCategoryByName/:name', async (req, res) => {
 
 
 // Delete a Category by Name
-app.delete('/deleteCategoryByName/:name', async (req, res) => {
+app.delete('/deleteCategoryByName/:name',  async (req, res) => {
   const { name } = req.params;
   const category = await Category.findOneAndDelete({ name: name });
 
@@ -213,7 +188,7 @@ app.get('/sellers', async (req, res) => {
 });
 
 // Update a seller's status by Email
-app.patch('/sellers/:email', getSellerByEmail, async (req, res) => {
+app.patch('/sellers/:email', passport.authenticate('jwt', { session: false }), getSellerByEmail, checkRole("Admin"), async (req, res) => {
   try {
     const { status } = req.body;
     
@@ -233,99 +208,17 @@ app.patch('/sellers/:email', getSellerByEmail, async (req, res) => {
 // Middleware to get a specific seller by Email
 async function getSellerByEmail(req, res, next) {
   try {
-    const seller = await Seller.findOne({ email: req.user.email });
-    if (!seller) {
+    const seller = await Seller.findOne({ email: req.params.email });
+    if (seller == null) {
       return res.status(404).json({ message: 'Seller not found' });
     }
-    req.seller = seller;
+    res.seller = seller;
     next();
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
+    return res.status(500).json({ message: error.message });
   }
-};
+}
 
-//==============Product CRUD=============//
-
-// CREATE a new product
-app.post('/products', passport.authenticate('jwt', { session: false }), getSellerByEmail, checkRole("Seller"), async (req, res) => {
-  if (req.seller.status !== 'Approved') {
-    return res.status(403).json({ message: 'Only approved sellers can add products' });
-  }
-  try {
-    const { name, basicAttributes, category, sellerId } = req.body;
-    const newProduct = new Product({
-      name,
-      basicAttributes,
-      category,
-      seller: sellerId
-    });
-    await newProduct.save();
-    res.status(201).json({ message: 'Product added', newProduct });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-});
-
-// READ all products for a specific seller
-app.get('/products', passport.authenticate('jwt', { session: false }), getSellerByEmail, checkRole("Seller"), async (req, res) => {
-  if (req.seller.status !== 'Approved') {
-    return res.status(403).json({ message: 'Only approved sellers can view products' });
-  }
-  try {
-    const sellerId = req.query.sellerID;
-    const products = await Product.find({ seller: sellerId });
-    res.status(200).json(products);
-  } catch (error) {
-    res.status(500).json({ message: 'Could not fetch products' });
-  }
-});
-
-// UPDATE a product by ID
-app.put('/products/:id', passport.authenticate('jwt', { session: false }), getSellerByEmail, checkRole("Seller"), async (req, res) => {
-  if (req.seller.status !== 'Approved') {
-    return res.status(403).json({ message: 'Only approved sellers can update products' });
-  }  
-  try {
-    const productId = req.params.id;
-    const sellerId = req.query.sellerID;
-    const updates = req.body;
-
-    const product = await Product.findOne({ _id: productId, seller: sellerId });
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    Object.assign(product, updates);
-    await product.save();
-
-    res.status(200).json({ message: 'Product updated', product });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-});
-
-// DELETE a product by ID
-app.delete('/products/:id', passport.authenticate('jwt', { session: false }), getSellerByEmail, checkRole("Seller"), async (req, res) => {
-  if (req.seller.status !== 'Approved') {
-    return res.status(403).json({ message: 'Only approved sellers can delete products' });
-  }  
-  try {
-    const productId = req.params.id;
-    const sellerId = req.query.sellerID;
-    const product = await Product.findOneAndDelete({ _id: productId, seller: sellerId });
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    res.status(200).json({ message: 'Product deleted' });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-});
-
-
-
-//=============Sign/Auth==========//
 
 // Register a new user
 app.post('/register', async (req, res) => {
@@ -347,11 +240,6 @@ app.post('/register', async (req, res) => {
   await newUser.save();
   res.status(201).json({ message: 'User registered', newUser });
 });
-
-
-
-
-//=============Login/Auth============//
 
 // Login
 app.post('/login', async (req, res) => {
@@ -383,7 +271,3 @@ app.post('/login', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
-
-
-
-

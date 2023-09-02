@@ -53,7 +53,7 @@ const inboundOrderSchema = new Schema({
 // schema for categories
 const categorySchema = new Schema({
   name: { type: String, default: 'Unnamed Category' },
-  parent: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
+  parent: { type: Schema.Types.ObjectId, ref: 'Category', default: null},
   additionalAttributes: { type: Array, default: [] },
   products: { type: Array, default: [] }
 });

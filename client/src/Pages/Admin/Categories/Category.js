@@ -21,7 +21,7 @@ export default function Category() {
     const navigate = useNavigate();
 
     const categoryList = categories.map((c, _id) =>
-        <option key={c._id} value={c}>{c.name}</option>
+        <option key={c._id} value={c._id}>{c.name}</option>
     )
     const attributeList = category.additionalAttributes.map((attribute) => (
         <li key={attribute._id} >
@@ -52,9 +52,12 @@ export default function Category() {
                 </BsForm.Group>
 
                 <BsForm.Group controlId="parent">
-                    <BsForm.Label>Parent Category</BsForm.Label>
-                    <BsForm.Select>
-                        <option value={null}>None</option>
+                    <BsForm.Label>Parent Category: {(category.parent === null) ? "None" : category.parent.name}</BsForm.Label>
+                    <BsForm.Select
+                        key="parent"
+                        name="parent"
+                    >
+                        <option value={''}>None</option>
                         {categoryList}
                     </BsForm.Select>
                 </BsForm.Group>

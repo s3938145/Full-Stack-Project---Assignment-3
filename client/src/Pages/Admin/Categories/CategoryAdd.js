@@ -36,7 +36,7 @@ function CategoryAdd() {
           <BsForm.Label>Parent Category</BsForm.Label>
            <BsForm.Select
             >
-              <option value={null}>None</option>
+              <option>None</option>
               {categoryList}
           </BsForm.Select>
         </BsForm.Group>
