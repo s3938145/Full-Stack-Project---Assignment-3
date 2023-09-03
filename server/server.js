@@ -165,20 +165,29 @@ app.get('/getCategoryByName/:name', populateAllParents, async (req, res) => {
 
 
 // Update a Category by Name
+// Update a Category by Name
 app.put('/updateCategoryByName/:name', async (req, res) => {
   const { name } = req.params;
-  const { newName, parent, additionalAttributes } = req.body;
-  
-  const updatedFields = {};
-  if (newName) updatedFields.name = newName;
-  if (parent) updatedFields.parent = parent;
-  if (additionalAttributes) updatedFields.additionalAttributes = additionalAttributes;
+  const { operationType, fieldName, value } = req.body;
 
-  const category = await Category.findOneAndUpdate(
-    { name: name },
-    updatedFields,
-    { new: true }
-  );
+  if (operationType === 'append') {
+    await Category.updateOne(
+      { name: name },
+      { $push: { [fieldName]: value } }
+    );
+  } else if (operationType === 'delete') {
+    await Category.updateOne(
+      { name: name },
+      { $pull: { [fieldName]: value } }
+    );
+  } else if (operationType === 'update') {
+    await Category.updateOne(
+      { name: name },
+      { $set: { [fieldName]: value } }
+    );
+  }
+
+  const category = await Category.findOne({ name: name });
 
   if (!category) {
     return res.status(404).json({ message: 'Category not found' });
@@ -186,6 +195,7 @@ app.put('/updateCategoryByName/:name', async (req, res) => {
 
   res.status(200).json({ message: 'Category updated', category });
 });
+
 
 
 // Delete a Category by Name
