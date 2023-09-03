@@ -40,6 +40,10 @@ function CategoryAdd() {
               {categoryList}
           </BsForm.Select>
         </BsForm.Group>
+        
+        <BsForm.Group>
+          
+        </BsForm.Group>
         <br />
         <Stack gap={2}>
           <Button variant="success" as="input" type="submit" value="Create Category" />

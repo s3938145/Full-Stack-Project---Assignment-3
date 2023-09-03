@@ -54,7 +54,7 @@ const inboundOrderSchema = new Schema({
 const categorySchema = new Schema({
   name: { type: String, default: 'Unnamed Category' },
   parent: { type: Schema.Types.ObjectId, ref: 'Category', default: null},
-  additionalAttributes: { type: Array, default: [] },
+  additionalAttributes: { type: Array, default: [{ name: {type: String}, value: {type: [String, Number]}, required: {type: Boolean}}] },
   products: { type: Array, default: [] }
 });
 
