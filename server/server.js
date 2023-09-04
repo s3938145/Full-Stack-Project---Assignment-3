@@ -82,6 +82,11 @@ app.get('/', (req, res) => {
         description: 'Update a category by name',
       },
       {
+        method: 'PUT',
+        path: '/updateCategoryAttribute/:name',
+        description: 'Update a category attribute'
+      },
+      {
         method: 'DELETE',
         path: '/deleteCategoryByName/:name',
         description: 'Delete a category by name',
@@ -115,6 +120,8 @@ app.get('/', (req, res) => {
 
 //===========WAREHOUSE ADMIN CRUD============//
 
+
+
 // Create a New Category
 app.post('/addCategory', async (req, res) => {
   const { name, parent } = req.body;
@@ -141,11 +148,15 @@ app.post('/addCategory', async (req, res) => {
   }
 });
 
+
+
 // Read All Categories with all their parents
 app.get('/getCategories', populateAllParents, async(req, res) => {
     res.status(200).json(req.categoriesWithParents);  // Use the populated categories from the request object
   }
 );
+
+
 
 // Read a Single Category by Name
 app.get('/getCategoryByName/:name', populateAllParents, async (req, res) => {
@@ -163,12 +174,35 @@ app.get('/getCategoryByName/:name', populateAllParents, async (req, res) => {
 
 
 
-
-// Update a Category by Name
 // Update a Category by Name
 app.put('/updateCategoryByName/:name', async (req, res) => {
   const { name } = req.params;
-  const { operationType, fieldName, value } = req.body;
+  const { newName, parent, additionalAttributes } = req.body;
+
+  const updatedFields = {};
+  if (newName) updatedFields.name = newName;
+  if (parent) updatedFields.parent = parent;
+  if (additionalAttributes) updatedFields.additionalAttributes = additionalAttributes;
+
+  const category = await Category.findOneAndUpdate(
+    { name: name },
+    updatedFields,
+    { new: true }
+  );
+
+  if (!category) {
+    return res.status(404).json({ message: 'Category not found' });
+  }
+
+  res.status(200).json({ message: 'Category updated', category });
+});
+
+
+
+// Update category's attributes by name
+app.put('/updateCategoryAttribute/:name', async (req, res) => {
+  const { name } = req.params;
+  const { operationType, fieldName, value, id } = req.body;
 
   if (operationType === 'append') {
     await Category.updateOne(
@@ -178,13 +212,15 @@ app.put('/updateCategoryByName/:name', async (req, res) => {
   } else if (operationType === 'delete') {
     await Category.updateOne(
       { name: name },
-      { $pull: { [fieldName]: value } }
+      { $pull: { [fieldName]: {id: id} } }
     );
   } else if (operationType === 'update') {
     await Category.updateOne(
       { name: name },
       { $set: { [fieldName]: value } }
     );
+  } else {
+    return res.status(400).json({ message: 'Operation type not found' });
   }
 
   const category = await Category.findOne({ name: name });

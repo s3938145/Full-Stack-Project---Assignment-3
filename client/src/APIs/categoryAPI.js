@@ -29,3 +29,27 @@ export async function removeCategory(name) {
     console.log(res.data)
 }
 
+// export async function updateAttributeAppend(name, newData) {
+//     var res = await axios.put(`/updateCategoryAttribute/${name}`, newData)
+//     console.log(res.data)
+// }
+
+export async function updateAttributeAppend(name, newData) {
+    var res = await axios({
+        method: 'put',
+        url: `/updateCategoryAttribute/${name}`,
+        data: {
+            operationType: newData.operationType,
+            fieldName: 'additionalAttributes',
+            id: newData.id,
+            value: 
+            {
+                id: newData.id,
+                attributeName: newData.name,
+                attributeValue: newData.value,
+                required: newData.required
+            }
+        }
+    })
+    console.log(res.data)
+}

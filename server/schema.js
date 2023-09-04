@@ -54,11 +54,20 @@ const inboundOrderSchema = new Schema({
 const categorySchema = new Schema({
   name: { type: String, default: 'Unnamed Category' },
   parent: { type: Schema.Types.ObjectId, ref: 'Category', default: null},
-  additionalAttributes: { type: Array, default: [{ name: {type: String}, value: {type: [String, Number]}, required: {type: Boolean}}] },
+  // additionalAttributes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attribute' }],
+  additionalAttributes: {type: Array, default: []},
   products: { type: Array, default: [] }
 });
 
+// schema for attributes
+// const attributeSchema = new Schema({
+//   name: { type: String, default: 'Unmaned Attribute' },
+//   value: { type: String, Number },
+//   required: { type: Boolean }
+// })
+
 const Category = mongoose.model('Category', categorySchema);
+// const Attribute = mongoose.model('Attribute', attributeSchema);
 const InboundOrder = mongoose.model('InboundOrder', inboundOrderSchema);
 const Order = mongoose.model('Order', orderSchema);
 const Product = mongoose.model('Product', productSchema);
@@ -68,6 +77,7 @@ const Customer = mongoose.model('Customer', customerSchema);
 
 module.exports = {
   Category,
+  // Attribute,
   InboundOrder,
   Order,
   Product,

@@ -1,7 +1,6 @@
 import { Form, Link, redirect, useLoaderData, useNavigate, useRouteLoaderData } from "react-router-dom"
 import { getCategory, updateCategory } from "../../../APIs/categoryAPI"
-import { Form as BsForm, Button, ButtonGroup, InputGroup, Stack } from "react-bootstrap";
-import { useState } from "react";
+import { Form as BsForm, Button, ButtonGroup, Stack } from "react-bootstrap";
 
 export async function loadCategory({ params }) {
     const category = await getCategory(params.categoryName)
@@ -20,33 +19,8 @@ export default function Category() {
     const categories = useRouteLoaderData("categories")
     const navigate = useNavigate();
 
-    const [attributes, setAttributes] = useState(category.additionalAttributes)
-    const [attributeName, setAttributeName] = useState('')
-    const [attributeValue, setAttributeValue] = useState('')
-    const [required, setRequired] = useState(false)
-
-    function handleAttributeName(e) {
-        setAttributeName(e.target.value);
-    }
-    function handleAttributeValue(e) {
-        setAttributeValue(e.target.value);
-    }
-    function handleNewAttributes() {
-        setAttributes([
-            ...attributes,
-            { name: attributeName, value: attributeValue, required: required }
-        ])
-    }
-
-    const attributeList = attributes.map((a, index) => 
-            <li key={index}>
-                {a.name}: {a.value} : {(a.required === true) ? " Required" : " Not Required"}
-                <br />
-            </li>
-    )
-
     const categoryList = categories.map((c, _id) =>
-        <option key={c._id} value={c._id}>{c.name}</option>
+        <option key={c._id} value={(c._id === category._id) ? {} : c._id}>{(c.name === category.name) ? "None" : c.name}</option>
     )
 
     return (
@@ -73,52 +47,9 @@ export default function Category() {
                         key="parent"
                         name="parent"
                     >
-                        <option value={''}>None</option>
+                        <option value={(category.parent === null) ? '' : category.parent._id}>Select a parent Category</option>
                         {categoryList}
                     </BsForm.Select>
-                </BsForm.Group>
-
-                {/* Update Attribute */}
-                <BsForm.Group className="mb-3">
-                    {/* Attribute Name and Value */}
-                    <BsForm.Label> Attribute </BsForm.Label>
-                    <InputGroup>
-                        <InputGroup.Text>Name and Value of Attribute</InputGroup.Text>
-                        <BsForm.Control 
-                            value={attributeName}
-                            onChange={handleAttributeName}
-                        />
-                        <BsForm.Control 
-                            value={attributeValue}    
-                            onChange={handleAttributeValue}
-                        />
-                    </InputGroup>
-                    {/* Attribute is Required or Not */}
-                    <BsForm.Select 
-                    value={required}
-                    onChange={e => setRequired(e.target.value)}
-                    >
-                        <option value={false}>Not Required</option>
-                        <option value={true}>Required</option>
-                    </BsForm.Select>
-                </BsForm.Group>
-
-                <BsForm.Group className="mb-3" controlId="additionalAttributes">
-                    Adding the following attribute:
-                    <p> {attributeName} : {attributeValue} </p>
-                    <p> Required: {required}</p>
-
-                    <p>
-                        <ul>
-                            {attributeList}
-                        </ul>
-                    </p>
-
-                    <Button as="input" type="button" value="Add Attribute" onClick={handleNewAttributes}/>
-                    <BsForm.Control 
-                        as="input"
-                        value={attributeList}
-                    />
                 </BsForm.Group>
 
                 <hr />
@@ -134,12 +65,16 @@ export default function Category() {
                             Delete    
                         </Button>        
                     </Link>
+                    <Link
+                    to={"update"}
+                    >
+                        <Button variant="secondary" type="button">
+                            Add Attributes
+                        </Button>
+                    </Link>
                 </Stack>
             </BsForm>
             <br />
-            <div>
-  
-            </div>
         </div>
     );
 }

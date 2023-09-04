@@ -14,6 +14,7 @@ import Category, { loadCategory, saveCategory } from './Pages/Admin/Categories/C
 import CategoryAdd, { createCategory } from './Pages/Admin/Categories/CategoryAdd';
 import CategoryDelete, { deleteCategory } from './Pages/Admin/Categories/CategoryDelete';
 import Login from './Pages/Login/Login';
+import CategoryUpdateAttribute, { appendAttribute } from './Pages/Admin/Categories/CategoryUpdateAttribute';
 
 const router = createBrowserRouter([
   { path: "/",
@@ -42,6 +43,12 @@ const router = createBrowserRouter([
             element: <CategoryDelete />,
             loader: loadCategory,
             action: deleteCategory
+          },
+          {
+            path: ":categoryName/update",
+            element: <CategoryUpdateAttribute />,
+            loader: loadCategory,
+            action: appendAttribute
           },
           { path: "/admin/categories/add", 
             element: <CategoryAdd />,
