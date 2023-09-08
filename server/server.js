@@ -376,6 +376,24 @@ app.delete('/products/:id', passport.authenticate('jwt', { session: false }), ge
 // Register a new user
 app.post('/register', async (req, res) => {
   const { email, password, role } = req.body;
+
+ 
+  try {
+    const existingUserByEmail = await User.findOne({ email });
+    if (existingUserByEmail) {
+      const errorMessage = "Email already in use";
+      return res.status(409).render("signup", { errorMessage, user: req.user });
+    }
+
+    const existingUserByPhone = await User.findOne({ phoneNumber });
+    if (existingUserByPhone) {
+      const errorMessage = "Phone number already in use";
+      return res.status(409).render("signup", { errorMessage, user: req.user });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }    
   
   // Hash the password (you'll need to install bcrypt)
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -393,7 +411,6 @@ app.post('/register', async (req, res) => {
   await newUser.save();
   res.status(201).json({ message: 'User registered', newUser });
 });
-
 
 
 
