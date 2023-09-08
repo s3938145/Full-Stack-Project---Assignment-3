@@ -1,15 +1,14 @@
-import { useState } from "react";
-import { Form as BsForm, Button } from "react-bootstrap";
-import { Form, redirect } from "react-router-dom";
+import { Form as BsForm, Button, NavItem, NavLink } from "react-bootstrap";
+import { Form, Link, redirect } from "react-router-dom";
 import { register } from "../../APIs/authAPI";
 
-import './register.css';
+import '../../index.css';
 
 export async function registerUser({ request }) {
     const formData = await request.formData();
     const newData = Object.fromEntries(formData);
     await register(newData);
-    return redirect("/login")
+    return redirect("/register")
 }
 
 export default function Register() {
@@ -24,6 +23,7 @@ export default function Register() {
                     placeholder="Email"
                 />
             </BsForm.Group>
+
             {/* Password Field */}
             <BsForm.Group className="login_input" controlId="password">
                 <BsForm.Control 
@@ -33,6 +33,16 @@ export default function Register() {
                 />
             </BsForm.Group>
 
+            {/* Phone Field */}
+            <BsForm.Group className="login_input" controlId="phone">
+                <BsForm.Control 
+                    type="tel"
+                    name="phone"
+                    placeholder="Phone Number"
+                />
+            </BsForm.Group>
+
+            {/* Role Selector */}
             <BsForm.Group className="login_input" controlId="role">
                 <BsForm.Select name="role">
                     <option value="Seller">Seller</option>
@@ -49,7 +59,13 @@ export default function Register() {
                 />
             </div>
             <div className="login_links">
-                <div className="login_link_ctr">Create an account</div>
+            <NavItem>
+                <NavLink
+                as={Link}
+                to={'/login'}>
+                    <div className="login_link_ctr">Sign in</div>
+                </NavLink>
+            </NavItem>
                 <div className="login_link_reg">Forgot your password?</div>
             </div>
         </BsForm>
