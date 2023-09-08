@@ -32,7 +32,10 @@ const sellerSchema = new Schema({
 const productSchema = new Schema({
   name: { type: String, default: 'Unnamed Product' },
   basicAttributes: { type: Object, default: {} },
-  category: { type: Schema.Types.ObjectId, ref: 'Category', default: null }
+  category: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
+  dateAdded: { type: Date, default: Date.now }, // Date when the product is added
+  seller: { type: Schema.Types.ObjectId, ref: 'Seller' }, // Reference to the seller
+  products: { type: Schema.Types.ObjectId, ref: 'Product' } // Array of product IDs
 });
 
 // schema for orders
