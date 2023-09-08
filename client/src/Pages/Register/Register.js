@@ -1,20 +1,19 @@
 import { useState } from "react";
 import { Form as BsForm, Button } from "react-bootstrap";
+import { Form, redirect } from "react-router-dom";
+import { register } from "../../APIs/authAPI";
 
-import './login.css';
-import { signIn } from "../../APIs/authAPI";
-import { redirect, Form } from "react-router-dom";
+import './register.css';
 
-export async function logInUser({ request }) {
+export async function registerUser({ request }) {
     const formData = await request.formData();
     const newData = Object.fromEntries(formData);
-    await signIn(newData);
-    return redirect('/')
+    await register(newData);
+    return redirect("/login")
 }
 
-export default function Login() {
-    return (
-        // Email Field
+export default function Register() {
+    return (         
         <BsForm as={Form} method='post' className="login_container">
             <div className="login_title">Register</div>
             <BsForm.Group className="login_input" controlId="email">
@@ -34,12 +33,19 @@ export default function Login() {
                 />
             </BsForm.Group>
 
+            <BsForm.Group className="login_input" controlId="role">
+                <BsForm.Select name="role">
+                    <option value="Seller">Seller</option>
+                    <option value="Customer">Customer</option>
+                </BsForm.Select>
+            </BsForm.Group>
+
             <div className="login_input">
                 <Button
                     className="login_button"
                     as="input"
                     type="submit"
-                    value="Login"
+                    value="Register"
                 />
             </div>
             <div className="login_links">
@@ -48,4 +54,4 @@ export default function Login() {
             </div>
         </BsForm>
   )
-} 
+}

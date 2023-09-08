@@ -375,39 +375,44 @@ app.delete('/products/:id', passport.authenticate('jwt', { session: false }), ge
 
 // Register a new user
 app.post('/register', async (req, res) => {
-  const { email, password, role, phoneNumber } = req.body;
+  const { email, password, role, phone } = req.body;
 
- 
   try {
-    const existingUserByEmail = await User.findOne({ email });
-    if (existingUserByEmail) {
+    const existingUserByEmail = await Promise.all([
+      Seller.findOne({ email }),
+      Customer.findOne({ email }),
+    ]);
+
+    if (existingUserByEmail.some(user => user)) {
       const errorMessage = "Email already in use";
-      return res.status(409).render("signup", { errorMessage, user: req.user });
+      return res.status(409).json({ errorMessage, user: req.user });
     }
 
-    const existingUserByPhone = await User.findOne({ phoneNumber });
-    if (existingUserByPhone) {
+    const existingUserByPhone = await Promise.all([
+      Seller.findOne({ phone }),
+      Customer.findOne({ phone }),
+    ]);
+
+    if (existingUserByPhone.some(user => user)) {
       const errorMessage = "Phone number already in use";
-      return res.status(409).render("signup", { errorMessage, user: req.user });
+      return res.status(409).json({ errorMessage, user: req.user });
     }
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }    
-  
+
   // Hash the password (you'll need to install bcrypt)
   const hashedPassword = bcrypt.hashSync(password, 10);
-  
+
   let newUser;
-  
-  if (role === 'Admin') {
-    newUser = new WH_Admin({ email, password: hashedPassword, role, phoneNumber });
-  } else if (role === 'Seller') {
-    newUser = new Seller({ email, password: hashedPassword, role, phoneNumber });
+
+if (role === 'Seller') {
+    newUser = new Seller({ email, password: hashedPassword, role, phone });
   } else {
-    newUser = new Customer({ email, password: hashedPassword, role, phoneNumber });
+    newUser = new Customer({ email, password: hashedPassword, role, phone });
   }
-  
+
   await newUser.save();
   res.status(201).json({ message: 'User registered', newUser });
 });
@@ -421,7 +426,7 @@ app.post('/login', async (req, res) => {
   const { email, password } = req.body;
   
   // Find user by email (you'll need to search in all collections)
-  let user = await WH_Admin.findOne({ email }) || await Seller.findOne({ email }) || await Customer.findOne({ email });
+  let user = await Seller.findOne({ email }) || await Customer.findOne({ email });
   
   if (!user) {
     return res.status(401).json({ message: 'Invalid credentials' });

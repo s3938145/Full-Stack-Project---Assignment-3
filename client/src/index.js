@@ -13,8 +13,9 @@ import Sellers from './Pages/Admin/Sellers/Sellers';
 import Category, { loadCategory, saveCategory } from './Pages/Admin/Categories/Category';
 import CategoryAdd, { createCategory } from './Pages/Admin/Categories/CategoryAdd';
 import CategoryDelete, { deleteCategory } from './Pages/Admin/Categories/CategoryDelete';
-import Login from './Pages/Login/Login';
+import Login, { logInUser } from './Pages/Login/Login';
 import CategoryUpdateAttribute, { appendAttribute } from './Pages/Admin/Categories/CategoryUpdateAttribute';
+import Register, { registerUser } from './Pages/Register/Register';
 
 const router = createBrowserRouter([
   { path: "/",
@@ -63,10 +64,13 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login />
+    element: <Login />,
+    action: logInUser
   },
   {
-    path: "/register"
+    path: "/register",
+    element: <Register />,
+    action: registerUser
   }
 ])
 const root = ReactDOM.createRoot(document.getElementById('root'));
