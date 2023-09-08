@@ -375,7 +375,7 @@ app.delete('/products/:id', passport.authenticate('jwt', { session: false }), ge
 
 // Register a new user
 app.post('/register', async (req, res) => {
-  const { email, password, role } = req.body;
+  const { email, password, role, phoneNumber } = req.body;
 
  
   try {
@@ -401,11 +401,11 @@ app.post('/register', async (req, res) => {
   let newUser;
   
   if (role === 'Admin') {
-    newUser = new WH_Admin({ email, password: hashedPassword, role });
+    newUser = new WH_Admin({ email, password: hashedPassword, role, phoneNumber });
   } else if (role === 'Seller') {
-    newUser = new Seller({ email, password: hashedPassword, role });
+    newUser = new Seller({ email, password: hashedPassword, role, phoneNumber });
   } else {
-    newUser = new Customer({ email, password: hashedPassword, role });
+    newUser = new Customer({ email, password: hashedPassword, role, phoneNumber });
   }
   
   await newUser.save();
