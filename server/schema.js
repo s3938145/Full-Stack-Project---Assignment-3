@@ -35,23 +35,33 @@ const productSchema = new Schema({
   category: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
   dateAdded: { type: Date, default: Date.now }, // Date when the product is added
   seller: { type: Schema.Types.ObjectId, ref: 'Seller' }, // Reference to the seller
-  products: { type: Schema.Types.ObjectId, ref: 'Product' } // Array of product IDs
 });
 
 // schema for orders
 const orderSchema = new Schema({
   customer: { type: Schema.Types.ObjectId, ref: 'User', default: null },
-  products: { type: Array, default: [] },
-  datePlaced: { type: Date, default: Date.now }
+  product: [
+    {
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
+      },
+      quantity: Number,
+      customerStatus: {
+        type: String,
+        enum: [ 'Accepted', 'Rejected', 'Pending'],
+        default: 'Pending', // You can set a default status if needed
+      },
+      sellerStatus: {
+          type: String,
+          enum: ['Canceled', 'Shipped', 'Pending'],
+          default: 'Pending', // You can set a default status if needed
+      }
+    }
+  ],
+  datePlaced: { type: Date, default: Date.now },
 });
 
-// schema for inbound orders
-const inboundOrderSchema = new Schema({
-  seller: { type: Schema.Types.ObjectId, ref: 'User', default: null },
-  products: { type: Array, default: [] },
-  dateCreated: { type: Date, default: Date.now },
-  status: { type: String, enum: ['Pending', 'Finished'], default: 'Pending' }
-});
 
 // schema for categories
 const categorySchema = new Schema({
@@ -71,7 +81,6 @@ const categorySchema = new Schema({
 
 const Category = mongoose.model('Category', categorySchema);
 // const Attribute = mongoose.model('Attribute', attributeSchema);
-const InboundOrder = mongoose.model('InboundOrder', inboundOrderSchema);
 const Order = mongoose.model('Order', orderSchema);
 const Product = mongoose.model('Product', productSchema);
 const Seller = mongoose.model('Seller', sellerSchema);
@@ -81,7 +90,6 @@ const Customer = mongoose.model('Customer', customerSchema);
 module.exports = {
   Category,
   // Attribute,
-  InboundOrder,
   Order,
   Product,
   Seller,
