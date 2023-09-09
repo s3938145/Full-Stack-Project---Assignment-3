@@ -3,19 +3,23 @@ import { signIn } from "../../APIs/authAPI";
 import { redirect, Form, Link } from "react-router-dom";
 
 import '../../index.css';
-
-export async function logInUser({ request }) {
-    const formData = await request.formData();
-    const newData = Object.fromEntries(formData);
-    await signIn(newData);
-    return redirect('/')
-}
+import { useAuth } from "../../Components/Authentication/authProvider";
 
 export default function Login() {
+    const { setToken } = useAuth()
+
+    const handleLogin = async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        const newData = Object.fromEntries(formData.entries());
+
+        await logInUser({ request: newData, setToken})
+    }
 
     return (
         // Email Field
-        <BsForm as={Form} method='post' className="login_container">
+        <BsForm as={Form} method='post' className="login_container" onSubmit={handleLogin}>
             <div className="login_title">Log in</div>
             <BsForm.Group className="login_input" controlId="email">
                 <BsForm.Control 
@@ -56,3 +60,12 @@ export default function Login() {
         </BsForm>
   )
 } 
+
+export async function logInUser({ request, setToken }) {
+
+    const token = await signIn(request);
+    if (token) {
+        setToken(token);
+        return redirect('/');
+    }
+}

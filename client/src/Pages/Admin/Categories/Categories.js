@@ -5,7 +5,7 @@ import { getCategories } from '../../../APIs/categoryAPI';
 
 export async function loadCategories() {
   const categories = await getCategories();
-  return categories
+  return categories;
 }
 
 export default function Categories() {

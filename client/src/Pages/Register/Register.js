@@ -1,14 +1,14 @@
 import { Form as BsForm, Button, NavItem, NavLink } from "react-bootstrap";
 import { Form, Link, redirect } from "react-router-dom";
-import { register } from "../../APIs/authAPI";
 
 import '../../index.css';
+import { registerNewUser } from "../../APIs/authAPI";
 
 export async function registerUser({ request }) {
     const formData = await request.formData();
     const newData = Object.fromEntries(formData);
-    await register(newData);
-    return redirect("/register")
+    await registerNewUser(newData);
+    return redirect("/")
 }
 
 export default function Register() {
