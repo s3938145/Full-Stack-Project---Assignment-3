@@ -22,7 +22,6 @@ mongoose.connect(process.env.MONGODB_URI, {
   useUnifiedTopology: true,
 });
 
-app.use(cookieParser());
 app.use(express.json());
 app.use(passport.initialize());
 app.use((req, res, next) => {

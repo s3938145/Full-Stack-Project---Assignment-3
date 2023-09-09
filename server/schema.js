@@ -57,6 +57,10 @@ const orderSchema = new Schema({
           type: String,
           enum: ['Canceled', 'Shipped', 'Pending'],
           default: 'Pending', // You can set a default status if needed
+      },
+      price : {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Price'
       }
     }
   ],
