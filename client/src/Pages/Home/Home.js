@@ -7,7 +7,6 @@ export default function Home() {
     const { token } = useAuth();
     
     if (!token) {
-
             <Link to={'/login'}>
                 <Button size="lg" variant="primary">
                     Login 
@@ -50,7 +49,7 @@ export default function Home() {
                             </Button>
                         </Link>
                     : 
-                        <Link to={'/login'}>
+                        <Link to={'/logout'}>
                             <Button size="lg" variant="primary">
                                 Logout 
                             </Button>

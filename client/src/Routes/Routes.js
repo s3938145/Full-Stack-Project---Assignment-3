@@ -16,6 +16,7 @@ import Register, { registerUser } from '../Pages/Register/Register';
 import Sellers from '../Pages/Admin/Sellers/Sellers';
 import ProductAdd from '../Pages/Seller/ProductAdd';
 import ProtectedRoutes from './ProtectedRoutes';
+import { Logout } from '../Pages/Login/Logout';
 // Pages
 
 
@@ -71,6 +72,10 @@ function Routes() {
           path: "/login",
           element: <Login />,
           action: logInUser
+        },
+        {
+          path: "/logout",
+          element: <Logout />
         },
         {
           path: "/register",

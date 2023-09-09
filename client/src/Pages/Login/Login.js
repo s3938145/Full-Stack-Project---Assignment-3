@@ -1,19 +1,18 @@
 import { Form as BsForm, Button, NavItem, NavLink } from "react-bootstrap";
 import { signIn } from "../../APIs/authAPI";
-import { redirect, Form, Link, useNavigate } from "react-router-dom";
+import { redirect, Form, Link } from "react-router-dom";
 
 import '../../index.css';
-import { useAuth } from "../../Components/Authentication/authProvider";
 
 export async function logInUser({ request }) {
     const formData = await request.formData();
     const newData = Object.fromEntries(formData);
     await signIn(newData);
-    return redirect('/seller/dashboard')
+    return redirect('/')
 }
 
 export default function Login() {
-    
+
     return (
         // Email Field
         <BsForm as={Form} method='post' className="login_container">
