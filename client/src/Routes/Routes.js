@@ -16,6 +16,9 @@ import Register, { registerUser } from '../Pages/Register/Register';
 import Sellers from '../Pages/Admin/Sellers/Sellers';
 import ProductAdd from '../Pages/Seller/ProductAdd';
 import ProtectedRoutes from './ProtectedRoutes';
+import { updateSeller } from '../APIs/sellerAPI';
+import SellerApproval from '../Pages/Admin/SellerApproval';
+
 import { Logout } from '../Pages/Login/Logout';
 // Pages
 
@@ -86,6 +89,11 @@ function Routes() {
           path: "/product/add",
           element: <ProductAdd />,
           loader: loadCategories
+        },
+        {
+          path: "/sellerUpdate",
+          element: <SellerApproval />,
+          action: updateSeller
         }
     ];
 

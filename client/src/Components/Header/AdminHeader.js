@@ -23,7 +23,7 @@ export default function AdminHeader() {
                         {/* Link to Seller Approval Page */}
                         <Nav.Link
                             as={NavLink}
-                            to="/sellers"
+                            to="/sellerUpdate"
                             className={({ isActive }) =>
                                 isActive ? 'active' : ''
                             }   
