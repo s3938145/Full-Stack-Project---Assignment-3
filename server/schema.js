@@ -31,10 +31,11 @@ const sellerSchema = new Schema({
 // schema for products
 const productSchema = new Schema({
   name: { type: String, default: 'Unnamed Product' },
-  basicAttributes: { type: Array, default: [] },
+  basicAttributes: { type: Object, default: [] },
   category: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
   dateAdded: { type: Date, default: Date.now }, // Date when the product is added
   seller: { type: Schema.Types.ObjectId, ref: 'Seller' }, // Reference to the seller
+  price: { type: Number, required: true, default: null },
 });
 
 // schema for orders
@@ -60,6 +61,7 @@ const orderSchema = new Schema({
     }
   ],
   datePlaced: { type: Date, default: Date.now },
+  totalPrice: {type: Number, default: null}
 });
 
 
@@ -67,7 +69,6 @@ const orderSchema = new Schema({
 const categorySchema = new Schema({
   name: { type: String, default: 'Unnamed Category' },
   parent: { type: Schema.Types.ObjectId, ref: 'Category', default: null},
-  // additionalAttributes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attribute' }],
   additionalAttributes: {type: Array, default: []},
   products: { type: Array, default: [] }
 });
