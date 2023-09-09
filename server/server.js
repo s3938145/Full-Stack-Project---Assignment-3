@@ -278,7 +278,6 @@ async function getSellerByEmail(req, res, next) {
   }
 }
 
-
 //==============Product CRUD=============//
 
 /// Middleware to get seller data from JWT payload
@@ -286,7 +285,7 @@ async function getSellerFromJwt(req, res, next) {
   try {
     // Assuming req.user.id stores the seller ID in JWT payload, adjust if necessary
     const seller = await Seller.findById(req.user.id);
-    
+
     if (!seller) {
       return res.status(404).json({ message: "Seller not found" });
     }
@@ -307,28 +306,28 @@ app.post(
   checkRole("Seller"),
   async (req, res) => {
     if (req.seller.status !== "Approved") {
-      return res.status(403).json({ message: "Only approved sellers can add products" });
+      return res
+        .status(403)
+        .json({ message: "Only approved sellers can add products" });
     }
-    
+
     try {
       const { name, basicAttributes, category } = req.body;
-      
+
       // Use the Product.create method to create a new product
       const newProduct = await Product.create({
         name,
         category,
         seller: req.seller._id,
-        basicAttributes
+        basicAttributes,
       });
-      
+
       res.status(201).json({ message: "Product added", newProduct });
     } catch (error) {
       res.status(500).json({ message: "Internal Server Error" });
     }
-    
   }
 );
-
 
 // READ all products for a specific seller
 app.get(
@@ -419,32 +418,35 @@ app.delete(
 
 //===============Order CRUD for sellers==============//
 
-
 // Seller Order Management
-app.get('/sellerOrders/:sellerId', async (req, res) => {
+app.get("/sellerOrders/:sellerId", async (req, res) => {
   const { sellerId } = req.params;
 
   try {
     // Find orders containing products sold by the seller
-    const orders = await Order.find({ 'products.seller': sellerId }).populate('customer');
+    const orders = await Order.find({ "products.seller": sellerId }).populate(
+      "customer"
+    );
 
     res.status(200).json(orders);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching seller orders' });
+    res.status(500).json({ message: "Error fetching seller orders" });
   }
 });
 
-app.patch('/updateProductStatus/:orderId/:productId', async (req, res) => {
+app.patch("/updateProductStatus/:orderId/:productId", async (req, res) => {
   const { orderId, productId } = req.params;
   const { status } = req.body;
 
   try {
     // Find the order and product
     const order = await Order.findById(orderId);
-    const productIndex = order.products.findIndex((p) => p.toString() === productId);
+    const productIndex = order.products.findIndex(
+      (p) => p.toString() === productId
+    );
 
     if (productIndex === -1) {
-      return res.status(404).json({ message: 'Product not found in order' });
+      return res.status(404).json({ message: "Product not found in order" });
     }
 
     // Update the product status in the order
@@ -452,91 +454,96 @@ app.patch('/updateProductStatus/:orderId/:productId', async (req, res) => {
 
     // Update the order status based on product statuses
     const productStatuses = order.products.map((p) => p.status);
-    if (productStatuses.includes('Shipped')) {
-      order.status = 'Shipped';
+    if (productStatuses.includes("Shipped")) {
+      order.status = "Shipped";
     } else {
-      order.status = 'New';
+      order.status = "New";
     }
 
     await order.save();
 
     res.status(200).json(order);
   } catch (error) {
-    res.status(500).json({ message: 'Error updating product status' });
+    res.status(500).json({ message: "Error updating product status" });
   }
 });
 
+app.patch(
+  "/updateProductStatus/:orderId/:productId/:sellerStatus",
+  async (req, res) => {
+    const { orderId, productId, sellerStatus } = req.params;
 
-app.patch('/updateProductStatus/:orderId/:productId/:sellerStatus', async (req, res) => {
-  const { orderId, productId, sellerStatus} = req.params;
+    try {
+      // Find the order
+      const order = await Order.findById(orderId);
 
-  try {
-    // Find the order
-    const order = await Order.findById(orderId);
+      console.log(order);
 
-    console.log(order);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
 
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      // Find the product in the order
+      const productInOrder = order.product.find((product) =>
+        product.productId.equals(productId)
+      );
+
+      console.log("Dawg", productInOrder);
+
+      if (!productInOrder) {
+        return res
+          .status(404)
+          .json({ message: "Product not found in the order" });
+      }
+
+      // // Check if the seller can update the product status
+      // if (productInOrder.seller !== req.user.id) {
+      //   return res.status(403).json({ message: 'You are not authorized to update this product' });
+      // }
+      console.log("sellerStatus:", sellerStatus);
+
+      if (sellerStatus === "Shipped" || sellerStatus === "Canceled") {
+        // Update the status of the product
+        productInOrder.sellerStatus = sellerStatus;
+
+        console.log("Status: ", sellerStatus);
+        console.log("productInOrder: ", productInOrder);
+
+        order.markModified("product"); // Add this line to mark the 'product' field as modified
+        await order.save();
+
+        console.log("order after save: ", order); // Log the order after saving it to see the updated status
+
+        res
+          .status(200)
+          .json({ message: `Product status updated to "${sellerStatus}"` });
+      } else {
+        res.status(400).json({ message: "Invalid status" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Error updating product status" });
     }
-
-    // Find the product in the order
-    const productInOrder = order.product.find((product) =>
-      product.productId.equals(productId)
-    );
-
-    console.log("Dawg", productInOrder);
-
-    if (!productInOrder) {
-      return res.status(404).json({ message: 'Product not found in the order' });
-    }
-
-    // // Check if the seller can update the product status
-    // if (productInOrder.seller !== req.user.id) {
-    //   return res.status(403).json({ message: 'You are not authorized to update this product' });
-    // }
-    console.log("sellerStatus:", sellerStatus);
-
-    if (sellerStatus === 'Shipped' || sellerStatus === 'Canceled') {
-      // Update the status of the product
-      productInOrder.sellerStatus = sellerStatus;
-      
-      console.log("Status: ", sellerStatus);
-      console.log("productInOrder: ", productInOrder);
-      
-      order.markModified('product'); // Add this line to mark the 'product' field as modified
-      await order.save();
-    
-      console.log("order after save: ", order); // Log the order after saving it to see the updated status
-    
-      res.status(200).json({ message: `Product status updated to "${sellerStatus}"` });
-    } else {
-      res.status(400).json({ message: 'Invalid status' });
-    }
-    
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating product status' });
   }
-});
+);
 
-app.get('/sales-statistics/:sellerId', async (req, res) => {
+app.get("/sales-statistics/:sellerId", async (req, res) => {
   try {
     const { sellerId } = req.params;
-    
+
     // Validate seller ID
     const seller = await Seller.findById(sellerId);
     if (!seller) {
-      return res.status(404).json({ message: 'Seller not found' });
+      return res.status(404).json({ message: "Seller not found" });
     }
     console.log(seller);
 
     // Gather sales statistics
     const orders = await Order.find().populate({
-      path: 'product.productId',
+      path: "product.productId",
       populate: {
-        path: 'seller',
-        model: 'Seller'
-      }
+        path: "seller",
+        model: "Seller",
+      },
     });
 
     const stats = {
@@ -546,26 +553,29 @@ app.get('/sales-statistics/:sellerId', async (req, res) => {
       accepted: 0,
       rejected: 0,
     };
-    
-    orders.forEach(order => {
-      order.product.forEach(product => {
-        
+
+    orders.forEach((order) => {
+      order.product.forEach((product) => {
         // Get detailed product info, including the seller ID
         const detailedProduct = product.productId;
 
         // Check if the product belongs to the seller we are calculating the stats for
-        if(detailedProduct && detailedProduct.seller && detailedProduct.seller._id.toString() === sellerId) {
-          if (product.sellerStatus === 'Shipped') {
+        if (
+          detailedProduct &&
+          detailedProduct.seller &&
+          detailedProduct.seller._id.toString() === sellerId
+        ) {
+          if (product.sellerStatus === "Shipped") {
             stats.shipped += 1;
-          } else if (product.sellerStatus === 'Canceled') {
+          } else if (product.sellerStatus === "Canceled") {
             stats.canceled += 1;
           }
-  
-          if (product.customerStatus === 'Accepted') {
+
+          if (product.customerStatus === "Accepted") {
             stats.accepted += 1;
-          } else if (product.customerStatus === 'Rejected') {
+          } else if (product.customerStatus === "Rejected") {
             stats.rejected += 1;
-          } else if (product.customerStatus === 'Pending') {
+          } else if (product.customerStatus === "Pending") {
             stats.new += 1;
           }
         }
@@ -574,12 +584,11 @@ app.get('/sales-statistics/:sellerId', async (req, res) => {
 
     res.json({ statistics: stats });
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 });
-
-
-
 
 //==============Order CRUD for customer===============//
 
@@ -592,14 +601,14 @@ async function getCustomerFromJwt(req, res, next) {
       return res.status(401).json({ message: "No token provided" });
     }
 
-    const token = authHeader.split(' ')[1]; // Extract token from Bearer
+    const token = authHeader.split(" ")[1]; // Extract token from Bearer
 
     // Decode the token without verifying it to inspect its payload
     const decoded = jwt.decode(token);
-    
+
     console.log("Decoded JWT:", decoded);
 
-    if(!decoded || !decoded.id) {
+    if (!decoded || !decoded.id) {
       return res.status(401).json({ message: "Invalid token" });
     }
 
@@ -620,7 +629,6 @@ async function getCustomerFromJwt(req, res, next) {
 
 // Place an order
 app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
-
   console.log("pp", req.customer);
   const { cart } = req.body;
 
@@ -631,7 +639,7 @@ app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
       product: cart, // Use the "cart" array as the products in the order
       status: "New",
     });
-
+    
     console.log("Cart:", cart); // Log the cart for debugging
 
     console.log("Order created:", order); // Log the created order if it's successful
@@ -645,59 +653,85 @@ app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
   }
 });
 
-
 // Customer Order Interaction
-app.get('/customerOrders/:customerId', async (req, res) => {
+app.get("/customerOrders/:customerId", async (req, res) => {
   const { customerId } = req.params;
 
   try {
     // Find orders for the customer
-    const orders = await Order.find({ customer: customerId }).populate('product');
-    console.log("here is the thing", orders)
+    const orders = await Order.find({ customer: customerId }).populate(
+      "product"
+    );
+    console.log("here is the thing", orders);
     res.status(200).json(orders);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching customer orders' });
+    res.status(500).json({ message: "Error fetching customer orders" });
   }
 });
-
 
 // Customer can accept or reject products in their order
-app.patch("/updateProductCustomerStatus/:orderId/:productId/:customerStatus", async (req, res) => {
-  const { orderId, productId, customerStatus } = req.params;
+app.patch(
+  "/updateProductCustomerStatus/:orderId/:productId/:customerStatus",
+  async (req, res) => {
+    const { orderId, productId, customerStatus } = req.params;
 
+    try {
+      // Find the order
+      const order = await Order.findById(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Find the product in the order
+      const productInOrder = order.product.find((product) =>
+        product.productId.equals(productId)
+      );
+
+      if (!productInOrder) {
+        return res
+          .status(404)
+          .json({ message: "Product not found in the order" });
+      }
+
+      if (productInOrder.sellerStatus !== "Shipped") {
+        return res
+          .status(400)
+          .json({ message: 'Product status must be "Shipped" to update' });
+      }
+
+      if (customerStatus === "Accepted" || customerStatus === "Rejected") {
+        productInOrder.customerStatus = customerStatus;
+        await order.save();
+        res
+          .status(200)
+          .json({ message: `Product status updated to "${customerStatus}"` });
+      } else {
+        res.status(400).json({ message: "Invalid status" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Error updating product status" });
+    }
+  }
+);
+
+
+
+
+// Endpoint to get all products for a customer
+app.get("/productCustomer", async (req, res) => {
   try {
-    // Find the order
-    const order = await Order.findById(orderId);
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-    
-    // Find the product in the order
-    const productInOrder = order.product.find((product) =>
-      product.productId.equals(productId)
-    );
+    // Assuming you have a customer ID available in the request, you can use it to find products
 
-    if (!productInOrder) {
-      return res.status(404).json({ message: 'Product not found in the order' });
-    }
+    // Find all products associated with the customer (replace 'customerIdField' with your actual field)
+    const products = await Product.find();
 
-    if (productInOrder.sellerStatus !== "Shipped") {
-      return res
-        .status(400)
-        .json({ message: 'Product status must be "Shipped" to update' });
-    }
-
-    if (customerStatus === "Accepted" || customerStatus === "Rejected") {
-      productInOrder.customerStatus = customerStatus;
-      await order.save();
-      res.status(200).json({ message: `Product status updated to "${customerStatus}"` });
-    } else {
-      res.status(400).json({ message: "Invalid status" });
-    }
+    res.status(200).json(products);
   } catch (error) {
-    res.status(500).json({ message: "Error updating product status" });
+    res.status(500).json({ message: "Error fetching products", error: error.message });
   }
 });
+
+
 
 
 //=============Sign/Auth==========//
@@ -707,19 +741,15 @@ app.patch("/updateProductCustomerStatus/:orderId/:productId/:customerStatus", as
 app.post("/register", async (req, res) => {
   const { email, password, role } = req.body;
 
-
-
   // Hash the password (you'll need to install bcrypt)
   const hashedPassword = bcrypt.hashSync(password, 10);
 
   let newUser;
 
-
   if (role === "Admin") {
     newUser = new WH_Admin({ email, password: hashedPassword, role });
   } else if (role === "Seller") {
     newUser = new Seller({ email, password: hashedPassword, role });
-
   } else {
     newUser = new Customer({ email, password: hashedPassword, role, phone });
   }
