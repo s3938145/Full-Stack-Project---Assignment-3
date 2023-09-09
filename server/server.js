@@ -581,20 +581,25 @@ app.patch("/updateProductCustomerStatus/:orderId/:productId/:customerStatus", as
 //=============Sign/Auth==========//
 
 // Register a new user
+
 app.post("/register", async (req, res) => {
   const { email, password, role } = req.body;
+
+
 
   // Hash the password (you'll need to install bcrypt)
   const hashedPassword = bcrypt.hashSync(password, 10);
 
   let newUser;
 
+
   if (role === "Admin") {
     newUser = new WH_Admin({ email, password: hashedPassword, role });
   } else if (role === "Seller") {
     newUser = new Seller({ email, password: hashedPassword, role });
+
   } else {
-    newUser = new Customer({ email, password: hashedPassword, role });
+    newUser = new Customer({ email, password: hashedPassword, role, phone });
   }
 
   await newUser.save();
@@ -608,6 +613,7 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   // Find user by email (you'll need to search in all collections)
+
   let user =
     (await WH_Admin.findOne({ email })) ||
     (await Seller.findOne({ email })) ||

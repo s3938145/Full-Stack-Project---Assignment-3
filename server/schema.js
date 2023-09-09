@@ -20,8 +20,8 @@ const whAdminSchema = new Schema({
 
 // schema for sellers
 const sellerSchema = new Schema({
-  email: { type: String, unique: true },
-  phone: { type: String, unique: true },
+  email: { type: String },
+  phone: { type: String, default: '1234567890'},
   password: String,
   businessName: { type: String, default: 'Unnamed Business' },
   status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },

@@ -22,7 +22,7 @@ export default function Home() {
                     </Link>
 
                     {/* Go to Customer's Page */}
-                    <Link to={'/'}>
+                    <Link to={'/register'}>
                         <Button size="lg" variant="secondary">
                             Register
                         </Button>
