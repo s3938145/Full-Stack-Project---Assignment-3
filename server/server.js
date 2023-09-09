@@ -246,13 +246,14 @@ app.get("/sellers", async (req, res) => {
 
 // Update a seller's status by Email
 app.patch("/sellers/:email", getSellerByEmail, async (req, res) => {
+  console.log(req.seller);
   try {
     const { status } = req.body;
 
     // Update seller status
     if (status && ["Approved", "Rejected"].includes(status)) {
-      res.seller.status = status;
-      await res.seller.save();
+      req.seller.status = status;
+      await req.seller.save();
       res.json({ message: "Seller status updated successfully" });
     } else {
       res.status(400).json({ message: "Invalid status value" });
@@ -265,46 +266,69 @@ app.patch("/sellers/:email", getSellerByEmail, async (req, res) => {
 // Middleware to get a specific seller by Email
 async function getSellerByEmail(req, res, next) {
   try {
-    const seller = await Seller.findOne({ email: req.user.email });
+    const seller = await Seller.findOne({ email: req.params.email });
     if (!seller) {
       return res.status(404).json({ message: "Seller not found" });
     }
     req.seller = seller;
+    console.log(req.seller);
     next();
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
+
 //==============Product CRUD=============//
+
+/// Middleware to get seller data from JWT payload
+async function getSellerFromJwt(req, res, next) {
+  try {
+    // Assuming req.user.id stores the seller ID in JWT payload, adjust if necessary
+    const seller = await Seller.findById(req.user.id);
+    
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+
+    req.seller = seller;
+    console.log("Seller data from JWT:", req.seller);
+    next();
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
 
 // CREATE a new product
 app.post(
   "/products",
   passport.authenticate("jwt", { session: false }),
-  getSellerByEmail,
+  getSellerFromJwt, // Use the new middleware here
   checkRole("Seller"),
   async (req, res) => {
     if (req.seller.status !== "Approved") {
-      return res
-        .status(403)
-        .json({ message: "Only approved sellers can add products" });
+      return res.status(403).json({ message: "Only approved sellers can add products" });
     }
+    
     try {
-      const { name, basicAttributes, category, sellerId } = req.body;
-      const newProduct = new Product({
+      const { name, basicAttributes, category } = req.body;
+      
+      // Use the Product.create method to create a new product
+      const newProduct = await Product.create({
         name,
-        basicAttributes,
         category,
-        seller: sellerId,
+        seller: req.seller._id,
+        basicAttributes
       });
-      await newProduct.save();
+      
       res.status(201).json({ message: "Product added", newProduct });
     } catch (error) {
       res.status(500).json({ message: "Internal Server Error" });
     }
+    
   }
 );
+
 
 // READ all products for a specific seller
 app.get(
@@ -495,17 +519,115 @@ app.patch('/updateProductStatus/:orderId/:productId/:sellerStatus', async (req, 
   }
 });
 
+app.get('/sales-statistics/:sellerId', async (req, res) => {
+  try {
+    const { sellerId } = req.params;
+    
+    // Validate seller ID
+    const seller = await Seller.findById(sellerId);
+    if (!seller) {
+      return res.status(404).json({ message: 'Seller not found' });
+    }
+    console.log(seller);
+
+    // Gather sales statistics
+    const orders = await Order.find().populate({
+      path: 'product.productId',
+      populate: {
+        path: 'seller',
+        model: 'Seller'
+      }
+    });
+
+    const stats = {
+      new: 0,
+      shipped: 0,
+      canceled: 0,
+      accepted: 0,
+      rejected: 0,
+    };
+    
+    orders.forEach(order => {
+      order.product.forEach(product => {
+        
+        // Get detailed product info, including the seller ID
+        const detailedProduct = product.productId;
+
+        // Check if the product belongs to the seller we are calculating the stats for
+        if(detailedProduct && detailedProduct.seller && detailedProduct.seller._id.toString() === sellerId) {
+          if (product.sellerStatus === 'Shipped') {
+            stats.shipped += 1;
+          } else if (product.sellerStatus === 'Canceled') {
+            stats.canceled += 1;
+          }
+  
+          if (product.customerStatus === 'Accepted') {
+            stats.accepted += 1;
+          } else if (product.customerStatus === 'Rejected') {
+            stats.rejected += 1;
+          } else if (product.customerStatus === 'Pending') {
+            stats.new += 1;
+          }
+        }
+      });
+    });
+
+    res.json({ statistics: stats });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+});
+
+
+
 
 //==============Order CRUD for customer===============//
 
+/// Middleware to get customer data from JWT payload
+async function getCustomerFromJwt(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      return res.status(401).json({ message: "No token provided" });
+    }
+
+    const token = authHeader.split(' ')[1]; // Extract token from Bearer
+
+    // Decode the token without verifying it to inspect its payload
+    const decoded = jwt.decode(token);
+    
+    console.log("Decoded JWT:", decoded);
+
+    if(!decoded || !decoded.id) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    // Now we use the ID from the decoded JWT payload to find the customer
+    const customer = await Customer.findById(decoded.id);
+
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    req.customer = customer;
+    console.log("Customer data from JWT:", req.customer);
+    next();
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+}
+
 // Place an order
-app.post("/placeOrder", async (req, res) => {
-  const { customer, cart } = req.body;
+app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
+
+  console.log("pp", req.customer);
+  const { cart } = req.body;
 
   try {
     // Create a new order with initial status "New"
     const order = await Order.create({
-      customer,
+      customer: req.customer._id,
       product: cart, // Use the "cart" array as the products in the order
       status: "New",
     });
