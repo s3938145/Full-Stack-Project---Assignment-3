@@ -1,12 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const { Category, Product, Seller, Customer, WH_Admin } = require('./schema');
+const { Category, Product, Seller, Customer } = require('./schema');
 const passport = require('passport');
 require('./passport-config')(passport);
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-
+const cookieParser = require("cookie-parser");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -16,6 +16,7 @@ mongoose.connect(process.env.MONGODB_URI, {
   useUnifiedTopology: true,
 });
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(passport.initialize());
 app.use((req, res, next) => {
@@ -55,6 +56,18 @@ function checkRole(role) {
   };
 }
 
+// Middleware cheking for cookie
+const authorization = (reg, res, next) => {
+  const token = reg.cookies.token;
+  if (!token) {
+    res.status(403).json({ message: 'No authorization token detected' });
+  }
+  try {
+    const data = jwt.verify(token, process.env.SECRET_KEY);
+  } catch {
+    res.status(403).json({ message: 'No authorization cookie detected' });
+  }
+};
 
 // Root API Endpoint
 app.get('/', (req, res) => {
@@ -443,7 +456,7 @@ app.post('/login', async (req, res) => {
   const token = jwt.sign({ id: user._id, role: user.role }, process.env.SECRET_KEY, {
     expiresIn: '1h',
   });
-  
+  res.cookie('token', token)
   res.status(200).json({ token });
 });
 

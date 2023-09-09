@@ -42,6 +42,25 @@ export default function Register() {
                 />
             </BsForm.Group>
 
+            
+            {/* Address Field */}
+            <BsForm.Group className="login_input" controlId="address">
+                <BsForm.Control 
+                    type="text"
+                    name="address"
+                    placeholder="Address"
+                />
+            </BsForm.Group>
+
+            {/* Business Name Field */}
+            <BsForm.Group className="login_input" controlId="businessName">
+                <BsForm.Control 
+                    type="text"
+                    name="businessName"
+                    placeholder="Name of Business"
+                />
+            </BsForm.Group>
+
             {/* Role Selector */}
             <BsForm.Group className="login_input" controlId="role">
                 <BsForm.Select name="role">
