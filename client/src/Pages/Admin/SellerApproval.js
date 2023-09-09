@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSellers, updateSeller } from '../../APIs/sellerAPI';
 import { Table, Button, Alert } from 'react-bootstrap';
+import AdminHeader from '../../Components/Header/AdminHeader';
 
 
 function SellerApproval() {
@@ -46,6 +47,8 @@ function SellerApproval() {
   };
 
   return (
+    <>
+    <AdminHeader />
     <div className="container">
       <h1 className="my-4">Seller Approval</h1>
       {error && <Alert variant="danger">{error}</Alert>}
@@ -88,6 +91,7 @@ function SellerApproval() {
         Save All Changes
       </Button>
     </div>
+    </>
   );
 }
 
