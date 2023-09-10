@@ -1,7 +1,7 @@
 import React from 'react'
 import { getProduct, removeProduct } from '../../APIs/productAPI'
 import { Form, redirect, useLoaderData, useNavigate } from 'react-router-dom';
-import { Button, ButtonGroup } from 'react-bootstrap';
+import { Form as BsForm, Button, ButtonGroup, Stack } from "react-bootstrap";
 
 export async function loadProduct({ params }) {
   const product = await getProduct(params.productId)
@@ -19,16 +19,22 @@ export default function ProductDelete() {
   const navigate = useNavigate()
   return (
     <div>
-      <Form method='post'>
-        <div>
-          <label>Deleting Product</label>
-          <input type='text' name='name' disabled={true} defaultValue={product.name} />
-        </div>
+      <BsForm as={Form} method='post' className="login_container">
+        <BsForm.Group className="w-100 p-2" controlId='name'>
+            <BsForm.Label> Deleting Product </BsForm.Label>
+            <BsForm.Control 
+                as='input'
+                name='name'
+                type='text'
+                disabled={true}
+                defaultValue={product.name}
+            />
+        </BsForm.Group>
         <ButtonGroup>
           <Button variant="success" as="input" type="submit" value="Yes" />
           <Button variant="danger" as="input" type="button" value="No" onClick={() => navigate(-1)} />
         </ButtonGroup>
-      </Form>
+      </BsForm>
     </div>
   )
 }

@@ -15,7 +15,7 @@ export async function createProduct({ request }) {
     const formData = await request.formData();
     const newData = Object.fromEntries(formData);
     await addProduct(newData)
-    return redirect("/")
+    return redirect("/seller/products")
 }
 
 export default function ProductAdd() {
@@ -28,9 +28,8 @@ export default function ProductAdd() {
 
     return (
         <>
-            <h2> Create new Product </h2>
             <BsForm as={Form} method='post' className="login_container">
-
+                <h2> Create new Product </h2>
                 <BsForm.Group className="w-100 p-2" controlId='name'>
                     <BsForm.Label> Product Name </BsForm.Label>
                     <BsForm.Control

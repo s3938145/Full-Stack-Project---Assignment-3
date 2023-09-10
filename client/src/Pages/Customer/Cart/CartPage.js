@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import CustomerHeader from "../../../Components/Header/CustomerHeader";
 
 const CartPage = () => {
   const [cart, setCart] = useState([]);
@@ -90,6 +91,8 @@ const CartPage = () => {
   
   
   return (
+    <>
+    <CustomerHeader />
     <div className="container mt-5">
       <h2>Your Cart</h2>
       {cart.length === 0 ? (
@@ -125,6 +128,7 @@ const CartPage = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

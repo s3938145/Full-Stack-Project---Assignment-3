@@ -3,6 +3,8 @@ import { Form, Link, redirect, useLoaderData, useNavigate, useRouteLoaderData } 
 import { Form as BsForm, Button, ButtonGroup, Stack } from "react-bootstrap";
 import { getProduct, updateProduct } from '../../APIs/productAPI';
 
+import '../../index.css';
+
 export async function loadProduct({ params }) {
     const product = await getProduct(params.productId)
     return product
@@ -27,11 +29,11 @@ export default function Product() {
     )
   return (
     <div>
+        
+        <BsForm as={Form} method='post' className="login_container">
         <h3>{product.name}'s Details</h3>
-        <BsForm as={Form} method='post'>
-
             {/* Update Product's Name */}
-            <BsForm.Group className='mb-3' controlId='name'>
+            <BsForm.Group className="w-100 p-2" controlId='name'>
                 <BsForm.Label> Product Name </BsForm.Label>
                 <BsForm.Control 
                     as='input'
@@ -42,7 +44,7 @@ export default function Product() {
             </BsForm.Group>
 
             {/* Update Product's Category */}
-            <BsForm.Group className='mb-3' controlId='category'>
+            <BsForm.Group className="w-100 p-2" controlId='category'>
                 <BsForm.Label> Category </BsForm.Label>
                 <BsForm.Select name='category'>
                     <option value={product.category}>{currentCategory.name}</option>
@@ -51,7 +53,7 @@ export default function Product() {
             </BsForm.Group>
 
             {/* Update Product's Price */}
-            <BsForm.Group className='mb-3' controlId='price'>
+            <BsForm.Group className="w-100 p-2" controlId='price'>
                 <BsForm.Label> Price </BsForm.Label>
                 <BsForm.Control 
                     as='input'
@@ -61,7 +63,7 @@ export default function Product() {
                 />
             </BsForm.Group>
 
-            <ButtonGroup className="mb-3">
+            <ButtonGroup className="w-100 p-2">
                 <Button variant="success" as="input" type="submit" value="Save" />
                 <Button variant="danger" as="input" type="button" value="Cancel" onClick={() => navigate(-1)} />
             </ButtonGroup>

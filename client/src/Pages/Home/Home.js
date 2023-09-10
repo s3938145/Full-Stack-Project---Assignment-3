@@ -16,7 +16,7 @@ export default function Home() {
                         </Button>
                     </Link>
 
-                    <Link to={'/'}>
+                    <Link to={'/customer/customerProduct'}>
                         <Button size="lg" variant="primary">
                             Go to Store Front
                         </Button>
