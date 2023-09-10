@@ -137,9 +137,7 @@ function Routes() {
       id: "productCategories",
       children: [
         { path:"/seller/dashboard", 
-        element: <SellerDashboard /> , 
-        loader: loadStatistics
-      },
+        element: <SellerDashboard /> ,       },
         {
           path: "/seller/products",
           element: <Products />,
