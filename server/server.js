@@ -352,6 +352,28 @@ app.get(
   }
 );
 
+
+// Get a Product by it ID
+app.get(
+  "/getProduct/:productId",
+  passport.authenticate("jwt", { session: false }),
+  getSellerFromJwt,
+  checkRole("Seller"),
+  async (req, res) => {
+    if (req.seller.status !== "Approved") {
+      return res
+        .status(403)
+        .json({ message: "Only approved sellers can view this product"});
+    }
+    try {
+      const product = await Product.findById(req.params.productId);
+      res.status(200).json(product);
+    } catch (error) {
+      res.status(500).json({ message: "Could not fetch product" });
+    }
+  }
+);
+
 // UPDATE a product by ID
 app.put(
   "/products/:id",
@@ -527,10 +549,12 @@ app.patch(
   }
 );
 
-app.get("/sales-statistics/:sellerId", async (req, res) => {
+app.get("/sales-statistics/",
+passport.authenticate("jwt", { session: false }),
+getSellerFromJwt,
+async (req, res) => {
   try {
-    const { sellerId } = req.params;
-
+    const sellerId = req.seller._id;
     // Validate seller ID
     const seller = await Seller.findById(sellerId);
     if (!seller) {

@@ -2,7 +2,7 @@ import React from 'react'
 
 function Sellers() {
   return (
-    <div>List of Sellers waiting approval</div>
+    <div>Sellers</div>
   )
 }
 

@@ -36,10 +36,11 @@ import CartPage from "../Pages/Customer/Cart/CartPage";
 import ShoppingCart from "../Pages/Customer/Cart/CartPage";
 import ProductList from "../Pages/Customer/Customer dashboard/customerProduct";
 import Products, { loadProductsBySeller } from "../Pages/Seller/Products";
-import ProductDelete from "../Pages/Seller/ProductDelete";
+import ProductDelete, { deleteProduct } from "../Pages/Seller/ProductDelete";
 import axios from "axios";
 import { useAuth } from "../Components/Authentication/authProvider";
-import Product, { loadProduct } from "../Pages/Seller/Product";
+import Product, { loadProduct, saveProduct } from "../Pages/Seller/Product";
+import SellerDashboard, { loadStatistics } from "../Pages/Admin/Sellers/SellerDashboard";
 
 // Pages
 
@@ -136,34 +137,37 @@ function Routes() {
     {
       path: "/seller",
       element: <ProtectedRoutes />,
+      loader: loadCategories,
+      id: "productCategories",
       children: [
-        { index: true, element: <div> Seller Dashboard</div> },
+        { path:"/seller/dashboard", 
+        element: <SellerDashboard /> , 
+        loader: loadStatistics
+      },
         {
           path: "/seller/products",
           element: <Products />,
           loader: loadProductsBySeller,
           children: [
             {
+              path: "/seller/products/add",
+              element: <ProductAdd />,
+              loader: loadCategories,
+              action: createProduct,
+            },
+            {
               path: ":productId",
               element: <Product />,
               loader: loadProduct,
+              action: saveProduct,
             },
             {
               path: ":productId/delete",
               element: <ProductDelete />,
               loader: loadProduct,
+              action: deleteProduct
             }
           ]
-        },
-        {
-          path: "/seller/products/add",
-          element: <ProductAdd />,
-          loader: loadCategories,
-          action: createProduct,
-        },
-        {
-          path: "/seller/products/delete",
-          element: <ProductDelete />
         },
         {
           path: "/seller/logout",
