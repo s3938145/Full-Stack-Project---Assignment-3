@@ -22,37 +22,38 @@ const ProductList = () => {
     }
   }, []);
 
-// Function to handle adding a product to the cart
-const addToCart = (product) => {
-  // Declare 'updatedCart' at the top level
-  let updatedCart;
+  // Function to handle adding a product to the cart
+  const addToCart = (product) => {
+    // Declare 'updatedCart' at the top level
+    let updatedCart;
 
-  // Check if the product is already in the cart
-  const productIndex = cart.findIndex((item) => item._id === product._id);
+    // Check if the product is already in the cart
+    const productIndex = cart.findIndex((item) => item._id === product._id);
 
-  if (productIndex !== -1) {
-    // Product is already in the cart, update the quantity
-    updatedCart = [...cart];
-    updatedCart[productIndex].quantity += 1;
-    setCart(updatedCart);
-  } else {
-    // Product is not in the cart, add it
-    updatedCart = [...cart, { ...product, quantity: 1 }];
-    setCart(updatedCart);
-  }
+    if (productIndex !== -1) {
+      // Product is already in the cart, update the quantity
+      updatedCart = [...cart];
+      updatedCart[productIndex].quantity += 1;
+      setCart(updatedCart);
+    } else {
+      // Product is not in the cart, add it
+      updatedCart = [...cart, { ...product, quantity: 1 }];
+      setCart(updatedCart);
+    }
 
-  // Save the updated cart to local storage
-  localStorage.setItem("cart", JSON.stringify(updatedCart));
-};
+    // Save the updated cart to local storage
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
 
   return (
     <div className="container mt-5">
       <h2 className="mb-4">Your Products</h2>
       <ul className="list-group">
-        {productCustomer.map((product) => (
+      {productCustomer.map((product) => (
           <li key={product._id} className="list-group-item">
             <strong>Name:</strong> {product.name}<br />
             <strong>Price:</strong> ${product.price}<br />
+            <strong>Seller:</strong> {product.seller ? product.seller.businessName : "Seller Name Not Available"}<br />
             {/* Add to Cart button */}
             <button className="btn btn-primary" onClick={() => addToCart(product)}>
               Add to Cart

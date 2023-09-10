@@ -1,14 +1,31 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-// schema for customer
-const customerSchema = new Schema({
+const customerSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   phone: { type: String, unique: true },
   password: String,
   address: { type: String, default: 'Not provided' },
-  role: { type: String, default: 'Customer' }
+  role: { type: String, default: 'Customer' },
+  cart: {
+    type: [
+      {
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Product', // Reference to the product in the cart
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
+    default: [],
+  },
 });
+
+
 
 // schema for warehouse admin
 const whAdminSchema = new Schema({

@@ -129,7 +129,12 @@ function Routes() {
     {
       path: "/cartpage",
       element: <CartPage/>
-    },
+        },
+        {
+          path: "/sellerUpdate",
+          element: <SellerApproval />,
+          action: updateSeller
+    }
   ];
 
   const authenticatedOnlyRoute = [
@@ -171,6 +176,20 @@ function Routes() {
         },
       ],
     },
+    {
+      path:"/customer",
+      element: <ProtectedRoutes/>,
+      children:[
+        {
+        path:"/customer/customerdashboard/customerProduct",
+        element: <ProductList/> 
+        },
+        {
+          path:"/customer/CartPage",
+          element:<CartPage/>
+        }
+      ]
+    }
   ];
 
   const router = createBrowserRouter([

@@ -1,4 +1,4 @@
-require("dotenv").config();
+ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const {
@@ -628,6 +628,9 @@ async function getCustomerFromJwt(req, res, next) {
   }
 }
 
+
+
+
 // Place an order
 app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
   console.log("pp", req.customer);
@@ -653,6 +656,8 @@ app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
       .json({ message: "Error placing order", error: error.message });
   }
 });
+
+
 
 // Customer Order Interaction
 app.get("/customerOrders/:customerId", async (req, res) => {
@@ -761,7 +766,7 @@ app.get("/getProduct/:productId", async (req, res) => {
 // Register a new user
 
 app.post("/register", async (req, res) => {
-  const { email, password, role } = req.body;
+  const { email,phone, password, role } = req.body;
 
   // Hash the password (you'll need to install bcrypt)
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -781,7 +786,7 @@ app.post("/register", async (req, res) => {
 });
 
 //=============Login/Auth============//
-
+   
 // Login
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
