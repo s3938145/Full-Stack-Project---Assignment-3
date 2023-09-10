@@ -15,9 +15,11 @@ export async function signIn(newData) {
     try {
         var res = await axios.post('/login', newData)
         console.log(res.data.token)
+        alert("Sign in successful")
         return res.data.token
     } catch (error) {
         alert(Object.values(error.response.data) + ".")
+        return null
     }
 
 }

@@ -42,6 +42,7 @@ import { useAuth } from "../Components/Authentication/authProvider";
 import Product, { loadProduct, saveProduct } from "../Pages/Seller/Product";
 import SellerDashboard, { loadStatistics } from "../Pages/Admin/Sellers/SellerDashboard";
 import UserProfile from "../Pages/Customer/UserProfile";
+import Loginv2, { logInUserV2 } from "../Pages/Login/Loginv2";
 import OrderSummaryPage from "../Pages/Customer/customerOrder/orderSummary";
 
 // Pages
@@ -109,8 +110,8 @@ function Routes() {
     },
     {
       path: "/login",
-      element: <Login />,
-      action: logInUser,
+      element: <Loginv2 />,
+      action: logInUserV2,
     },
         {
           path: "/logout",
@@ -201,7 +202,7 @@ function Routes() {
             },
             {
               path: "logout",
-              element: <div>Logout</div>,  // Handle logout properly
+              element: <Logout />  // Handle logout properly
             },
           ],
         },        

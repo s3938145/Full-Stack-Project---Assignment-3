@@ -26,7 +26,8 @@
 //     }
 //   }
   
-  
+  console.log('Order:', order);
+
   
 
 //   return (

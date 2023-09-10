@@ -39,6 +39,7 @@ const ProductList = () => {
   }, []);
   
   
+  
 
   // Function to handle adding a product to the cart
   const addToCart = (product) => {
@@ -64,7 +65,9 @@ const ProductList = () => {
   };
 
   return (
-    <div className="container mt-5">
+      <>
+      <CustomerHeader customerId = {customerId}/>
+      <div className="container mt-5">
       <h2 className="mb-4">Your Products</h2>
       <ul className="list-group">
       {productCustomer.map((product) => (
@@ -80,6 +83,7 @@ const ProductList = () => {
         ))}
       </ul>
     </div>
+      </>
   );
 };
 
