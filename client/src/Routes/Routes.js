@@ -42,7 +42,7 @@ import { useAuth } from "../Components/Authentication/authProvider";
 import Product, { loadProduct, saveProduct } from "../Pages/Seller/Product";
 import SellerDashboard, { loadStatistics } from "../Pages/Seller/SellerDashboard";
 import UserProfile from "../Pages/Customer/UserProfile";
-import OrderSummaryPage from "../Pages/Customer/customerOrder/orderSummary";
+import ProductPage from "../Pages/Customer/Customer dashboard/ProductPage";
 
 // Pages
 
@@ -196,8 +196,8 @@ function Routes() {
               element: <CartPage/>
             },
             {
-              path:"/customer/orderpage",
-              element:<OrderSummaryPage/>
+              path: "ProductPage",
+              element: <ProductPage/>,
             },
             {
               path: "logout",

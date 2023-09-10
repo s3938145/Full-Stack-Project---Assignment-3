@@ -3,6 +3,13 @@ import { Container, Nav, Navbar, NavLink } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 
 function SellerHeader() {
+  const token = localStorage.getItem('token');
+  let sellerId;
+  
+  if (token) {
+    sellerId = jwt_decode(token).id;
+  }
+
   return (
     <Navbar bg="dark" data-bs-theme="dark">
     <Container>
@@ -27,4 +34,4 @@ function SellerHeader() {
   )
 }
 
-export default SellerHeader
+export default SellerHeader;

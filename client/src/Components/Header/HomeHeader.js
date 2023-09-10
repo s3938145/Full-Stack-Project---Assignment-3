@@ -19,7 +19,7 @@ export default function HomeHeader() {
             return (
                 <Nav.Link
                     as={NavLink}
-                    to="/customer"
+                    to="/customer/customerProduct"
                     className={({ isActive }) =>
                         isActive ? 'active' : ''
                     }   

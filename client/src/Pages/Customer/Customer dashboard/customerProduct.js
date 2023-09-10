@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import CustomerHeader from "../../../Components/Header/CustomerHeader";
+import SearchBar from "../../../Components/Customer components/SearchBar";
 
 const ProductList = () => {
   const [productCustomer, setProductCustomer] = useState([]);
@@ -67,6 +68,7 @@ const ProductList = () => {
   return (
       <>
       <CustomerHeader customerId = {customerId}/>
+      <SearchBar />
       <div className="container mt-5">
       <h2 className="mb-4">Your Products</h2>
       <ul className="list-group">
