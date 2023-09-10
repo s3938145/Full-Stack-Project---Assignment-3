@@ -352,28 +352,6 @@ app.get(
   }
 );
 
-
-// Get a Product by it ID
-app.get(
-  "/getProduct/:productId",
-  passport.authenticate("jwt", { session: false }),
-  getSellerFromJwt,
-  checkRole("Seller"),
-  async (req, res) => {
-    if (req.seller.status !== "Approved") {
-      return res
-        .status(403)
-        .json({ message: "Only approved sellers can view this product"});
-    }
-    try {
-      const product = await Product.findById(req.params.productId);
-      res.status(200).json(product);
-    } catch (error) {
-      res.status(500).json({ message: "Could not fetch product" });
-    }
-  }
-);
-
 // UPDATE a product by ID
 app.put(
   "/products/:id",
@@ -549,12 +527,10 @@ app.patch(
   }
 );
 
-app.get("/sales-statistics/",
-passport.authenticate("jwt", { session: false }),
-getSellerFromJwt,
-async (req, res) => {
+app.get("/sales-statistics/:sellerId", async (req, res) => {
   try {
-    const sellerId = req.seller._id;
+    const { sellerId } = req.params;
+
     // Validate seller ID
     const seller = await Seller.findById(sellerId);
     if (!seller) {
@@ -684,17 +660,15 @@ app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
 
 
 // Customer Order Interaction
-app.get("/customerOrders/:customerId", async (req, res) => {
-  const { customerId } = req.params;
-
+app.get("/customerOrders", getCustomerFromJwt, async (req, res) => {
   try {
-    // Find orders for the customer
-    const orders = await Order.find({ customer: customerId })
+    // Find orders for the customer using req.customer._id
+    const orders = await Order.find({ customer: req.customer._id })
                          .populate({
                              path: 'product.productId',
                              populate: {
                                  path: 'seller category',
-                                 select: 'businessName name' // select business name from seller and name from category
+                                 select: 'businessName name' 
                              }
                          });
 
@@ -706,14 +680,10 @@ app.get("/customerOrders/:customerId", async (req, res) => {
 });
 
 // Get customer details
-app.get('/customer/:customerId', async (req, res) => {
+app.get('/customer', getCustomerFromJwt, async (req, res) => {
   try {
-    const customer = await Customer.findById(req.params.customerId);
-    if (customer) {
-      res.json(customer);
-    } else {
-      res.status(404).send('Customer not found');
-    }
+    // Access the customer directly through req.customer
+    res.json(req.customer);
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal server error');
@@ -722,10 +692,10 @@ app.get('/customer/:customerId', async (req, res) => {
 
 
 
-
 // Customer can accept or reject products in their order
 app.patch(
   "/updateProductCustomerStatus/:orderId/:productId/:customerStatus",
+  getCustomerFromJwt,
   async (req, res) => {
     const { orderId, productId, customerStatus } = req.params;
 
@@ -734,6 +704,11 @@ app.patch(
       const order = await Order.findById(orderId);
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Check if the order belongs to the logged-in customer
+      if (!order.customer.equals(req.customer._id)) {
+        return res.status(403).json({ message: "Not authorized to update this order" });
       }
 
       // Find the product in the order
@@ -767,6 +742,8 @@ app.patch(
     }
   }
 );
+
+
 
 
 

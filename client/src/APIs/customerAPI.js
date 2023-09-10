@@ -1,8 +1,16 @@
 import axios from "axios";
+import jwt_decode from "jwt-decode";
 
-export async function getCustomerOrders(customerId) {
+export async function getCustomerOrders() {
   try {
-    const res = await axios.get(`/customerOrders/${customerId}`);
+    const token = localStorage.getItem('token');
+    if(!token) throw new Error('Token not found');
+    const { id: customerId } = jwt_decode(token);
+    const res = await axios.get(`/customerOrders`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return res.data;
   } catch (error) {
     console.error('Error fetching customer orders:', error);
@@ -26,7 +34,13 @@ export async function placeOrder(authToken, cart) {
 
 export async function updateProductCustomerStatus(orderId, productId, customerStatus) {
   try {
-    const res = await axios.patch(`/updateProductCustomerStatus/${orderId}/${productId}/${customerStatus}`);
+    const token = localStorage.getItem('token');
+    if(!token) throw new Error('Token not found');
+    const res = await axios.patch(`/updateProductCustomerStatus/${orderId}/${productId}/${customerStatus}`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return res.data;
   } catch (error) {
     console.error('Error updating product customer status:', error);
@@ -34,9 +48,16 @@ export async function updateProductCustomerStatus(orderId, productId, customerSt
   }
 }
 
-export async function getCustomerDetails(customerId) {
+export async function getCustomerDetails() {
   try {
-    const res = await axios.get(`/customer/${customerId}`);
+    const token = localStorage.getItem('token');
+    if(!token) throw new Error('Token not found');
+    const { id: customerId } = jwt_decode(token);
+    const res = await axios.get(`/customer`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return res.data;
   } catch (error) {
     console.error('Error fetching customer details:', error);

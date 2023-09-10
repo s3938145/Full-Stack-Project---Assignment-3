@@ -191,12 +191,12 @@ function Routes() {
           element: <ProtectedRoutes />,
           children: [
             {
-              path: ":customerId",
+              path: "dashboard",
               element: <UserProfile />,
             },
             {
               path: "logout",
-              element: <div>Logout</div>,  // Handle logout properly
+              element: <Logout />  // Handle logout properly
             },
           ],
         },        
