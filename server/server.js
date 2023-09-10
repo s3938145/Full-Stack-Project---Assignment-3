@@ -631,13 +631,12 @@ async function getCustomerFromJwt(req, res, next) {
   }
 }
 
-
-
-
 // Place an order
 app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
   console.log("pp", req.customer);
-  const { cart } = req.body;
+  console.log("Request Body:", req.body);
+  
+  const { cart, totalPrice } = req.body;  // Extract totalPrice from req.body
 
   try {
     // Create a new order with initial status "New"
@@ -645,9 +644,11 @@ app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
       customer: req.customer._id,
       product: cart, // Use the "cart" array as the products in the order
       status: "New",
+      totalPrice,  // Save the totalPrice to the database
     });
     
     console.log("Cart:", cart); // Log the cart for debugging
+    console.log("Total Price:", totalPrice); // Log the total price for debugging
 
     console.log("Order created:", order); // Log the created order if it's successful
 
@@ -659,6 +660,7 @@ app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
       .json({ message: "Error placing order", error: error.message });
   }
 });
+
 
 
 
@@ -794,7 +796,7 @@ app.get("/getProduct/:productId", async (req, res) => {
 // Register a new user
 
 app.post("/register", async (req, res) => {
-  const { email,phone, password, role } = req.body;
+  const { email,phone, password, role, businessName } = req.body;
 
   // Hash the password (you'll need to install bcrypt)
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -804,7 +806,7 @@ app.post("/register", async (req, res) => {
   if (role === "Admin") {
     newUser = new WH_Admin({ email, password: hashedPassword, role });
   } else if (role === "Seller") {
-    newUser = new Seller({ email, password: hashedPassword, role });
+    newUser = new Seller({ email, password: hashedPassword, role, phone, businessName });
   } else {
     newUser = new Customer({ email, password: hashedPassword, role, phone });
   }

@@ -7,7 +7,6 @@ const ProductList = () => {
   const [cart, setCart] = useState([]);
   const [customerId, setCustomerId] = useState(null);
   
-
   useEffect(() => {
     const token = localStorage.getItem('token');
   

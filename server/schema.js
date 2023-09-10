@@ -60,30 +60,18 @@ const orderSchema = new Schema({
   customer: { type: Schema.Types.ObjectId, ref: 'User', default: null },
   product: [
     {
-      productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product'
-      },
+      productId: { type: Schema.Types.ObjectId, ref: 'Product' },
       quantity: Number,
-      customerStatus: {
-        type: String,
-        enum: [ 'Accepted', 'Rejected', 'Pending'],
-        default: 'Pending', // You can set a default status if needed
-      },
-      sellerStatus: {
-          type: String,
-          enum: ['Canceled', 'Shipped', 'Pending'],
-          default: 'Pending', // You can set a default status if needed
-      },
-      price : {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Price'
-      }
-    }
+      customerStatus: { type: String, enum: ['Accepted', 'Rejected', 'Pending'], default: 'Pending' },
+      sellerStatus: { type: String, enum: ['Canceled', 'Shipped', 'Pending'], default: 'Pending' },
+      price: { type: Number, required: true },  // Changed type to Number and added required: true
+      seller: { type: Schema.Types.ObjectId, ref: 'Seller' },
+    },
   ],
   datePlaced: { type: Date, default: Date.now },
-  totalPrice: {type: Number, default: null}
+  totalPrice: { type: Number, default: null },
 });
+
 
 
 // schema for categories

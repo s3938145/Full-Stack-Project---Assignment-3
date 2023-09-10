@@ -42,7 +42,8 @@ import { useAuth } from "../Components/Authentication/authProvider";
 import Product, { loadProduct, saveProduct } from "../Pages/Seller/Product";
 import SellerDashboard, { loadStatistics } from "../Pages/Seller/SellerDashboard";
 import UserProfile from "../Pages/Customer/UserProfile";
-
+import Loginv2, { logInUserV2 } from "../Pages/Login/Loginv2";
+import OrderSummaryPage from "../Pages/Customer/customerOrder/orderSummary";
 
 // Pages
 
@@ -126,18 +127,7 @@ function Routes() {
       element: <ProductAdd />,
       loader: loadCategories,
     },
-    {
-      path: "/cart",
-      element: <ShoppingCart/>
-    },
-    {
-      path: "/customer",
-      element: <ProductList/>
-    },
-    {
-      path: "/cartpage",
-      element: <CartPage/>
-    },
+
   ];
 
   const authenticatedOnlyRoute = [
@@ -193,6 +183,22 @@ function Routes() {
             {
               path: "dashboard",
               element: <UserProfile />,
+            },
+            {
+              path: "/customer/cart",
+              element: <ShoppingCart/>
+            },
+            {
+              path: "/customer/customerproduct",
+              element: <ProductList/>
+            },
+            {
+              path: "/customer/cartpage",
+              element: <CartPage/>
+            },
+            {
+              path:"/customer/orderpage",
+              element:<OrderSummaryPage/>
             },
             {
               path: "logout",
