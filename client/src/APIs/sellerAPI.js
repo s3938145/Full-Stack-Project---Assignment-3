@@ -15,7 +15,7 @@ export async function updateSeller(newData, email) {
 
 // Get Sales Statistics by Seller ID
 export async function getSaleStatistics(){
-    var res = await axios.get('/sales-statistics/')
+    var res = await axios.get('/sales-statistics')
     console.log(res.data)
     return res.data
 }

@@ -20,9 +20,9 @@ export default function Loginv2() {
         const decoded = jwt_decode(token)
         setToken(token);
         if (decoded.role === "Seller") {
-            navigate("/seller/dashboard")
+            navigate("/")
         } else {
-            navigate("/customer")
+            navigate("/")
         }
     }
 

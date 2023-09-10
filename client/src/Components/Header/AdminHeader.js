@@ -9,6 +9,17 @@ export default function AdminHeader() {
                 <Container>
                     <Navbar.Brand> Admin Dashboard </Navbar.Brand>
                     <Nav className="me-auto">
+                        {/* Link to Homepage */}
+                        <Nav.Link
+                            as={NavLink}
+                            to="/"
+                            className={({ isActive }) =>
+                                isActive ? 'active' : ''
+                            }   
+                        >
+                            Home
+                        </Nav.Link>
+                        
                         {/* Link to Categories Page */}
                         <Nav.Link
                             as={NavLink}

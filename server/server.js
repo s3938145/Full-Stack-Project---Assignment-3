@@ -527,9 +527,12 @@ app.patch(
   }
 );
 
-app.get("/sales-statistics/:sellerId", async (req, res) => {
+app.get("/sales-statistics/",
+passport.authenticate("jwt", { session: false }),
+getSellerFromJwt,
+async (req, res) => {
   try {
-    const { sellerId } = req.params;
+    const sellerId  = req.seller._id;
 
     // Validate seller ID
     const seller = await Seller.findById(sellerId);

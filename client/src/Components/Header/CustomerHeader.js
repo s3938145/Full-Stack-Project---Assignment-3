@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navbar, Nav } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import jwt_decode from "jwt-decode";
 
 function CustomerHeader() {
@@ -14,6 +14,12 @@ function CustomerHeader() {
     <Navbar bg="dark" variant="dark">
       <Navbar.Brand as={Link} to="/customer">Customer Dashboard</Navbar.Brand>
       <Nav className="mr-auto">
+
+        {/* Link to Homepage */}
+        <Nav.Link as={NavLink} to="/" className={({ isActive }) => isActive ? 'active' : ''}>
+          Home
+        </Nav.Link>
+
         <Nav.Link as={Link} to="/customer">Products</Nav.Link>
         { customerId && <Nav.Link as={Link} to={`/customer/dashboard`}>Profile</Nav.Link> }
         { customerId && <Nav.Link as={Link} to={`/customer/logout`}>Logout</Nav.Link> }

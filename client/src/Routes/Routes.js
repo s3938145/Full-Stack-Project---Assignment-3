@@ -22,7 +22,7 @@ import CategoryAdd, {createCategory,} from "../Pages/Admin/Categories/CategoryAd
 
 
 // Authentication
-import Login, { logInUser } from "../Pages/Login/Login";
+import Loginv2, { logInUserV2 } from "../Pages/Login/Loginv2";
 import Register, { registerUser } from "../Pages/Register/Register";
 import { Logout } from '../Pages/Login/Logout';
 
@@ -40,9 +40,9 @@ import ProductDelete, { deleteProduct } from "../Pages/Seller/ProductDelete";
 import axios from "axios";
 import { useAuth } from "../Components/Authentication/authProvider";
 import Product, { loadProduct, saveProduct } from "../Pages/Seller/Product";
-import SellerDashboard, { loadStatistics } from "../Pages/Admin/Sellers/SellerDashboard";
+import SellerDashboard, { loadStatistics } from "../Pages/Seller/SellerDashboard";
 import UserProfile from "../Pages/Customer/UserProfile";
-import Loginv2, { logInUserV2 } from "../Pages/Login/Loginv2";
+
 
 // Pages
 
