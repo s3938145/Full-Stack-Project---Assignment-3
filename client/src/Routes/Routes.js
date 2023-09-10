@@ -42,7 +42,6 @@ import { useAuth } from "../Components/Authentication/authProvider";
 import Product, { loadProduct, saveProduct } from "../Pages/Seller/Product";
 import SellerDashboard, { loadStatistics } from "../Pages/Seller/SellerDashboard";
 import UserProfile from "../Pages/Customer/UserProfile";
-import Loginv2, { logInUserV2 } from "../Pages/Login/Loginv2";
 import OrderSummaryPage from "../Pages/Customer/customerOrder/orderSummary";
 
 // Pages

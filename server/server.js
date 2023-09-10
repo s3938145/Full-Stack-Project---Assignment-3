@@ -283,8 +283,25 @@ async function getSellerByEmail(req, res, next) {
 /// Middleware to get seller data from JWT payload
 async function getSellerFromJwt(req, res, next) {
   try {
-    // Assuming req.user.id stores the seller ID in JWT payload, adjust if necessary
-    const seller = await Seller.findById(req.user.id);
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      return res.status(401).json({ message: "No token provided" });
+    }
+
+    const token = authHeader.split(" ")[1]; // Extract token from Bearer
+
+    // Decode the token without verifying it to inspect its payload
+    const decoded = jwt.decode(token);
+
+    console.log("Decoded JWT:", decoded);
+
+    if (!decoded || !decoded.id) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    // Now we use the ID from the decoded JWT payload to find the seller
+    const seller = await Seller.findById(decoded.id);
 
     if (!seller) {
       return res.status(404).json({ message: "Seller not found" });
@@ -294,9 +311,11 @@ async function getSellerFromJwt(req, res, next) {
     console.log("Seller data from JWT:", req.seller);
     next();
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error(error); // Log the error to get more details in case of a server error
+    res.status(500).json({ message: "Server Error" });
   }
 }
+
 
 // CREATE a new product
 app.post(
@@ -419,120 +438,71 @@ app.delete(
 
 //===============Order CRUD for sellers==============//
 
-// Seller Order Management
-app.get("/sellerOrders/:sellerId", async (req, res) => {
-  const { sellerId } = req.params;
+app.get("/sellerOrders", getSellerFromJwt, async (req, res) => {
+  const sellerId = req.seller._id;
 
   try {
     // Find orders containing products sold by the seller
-    const orders = await Order.find({ "products.seller": sellerId }).populate(
-      "customer"
-    );
+    const orders = await Order.find({ "product.seller": sellerId })
+      .populate('product.productId'); // Populate product details
+
+    // Fetch additional customer details separately
+    for(let order of orders) {
+      order.customer = await Customer.findById(order.customer).select('email');
+    }
 
     res.status(200).json(orders);
   } catch (error) {
+    console.error(error); // Log the error to console for debugging
     res.status(500).json({ message: "Error fetching seller orders" });
   }
 });
 
-app.patch("/updateProductStatus/:orderId/:productId", async (req, res) => {
+
+app.patch("/updateProductStatus/:orderId/:productId", getSellerFromJwt, async (req, res) => {
   const { orderId, productId } = req.params;
-  const { status } = req.body;
+  const { sellerStatus } = req.body; 
+  const sellerId = req.seller._id; 
+  
+  // Validate the sellerStatus value before proceeding
+  if (!['Canceled', 'Shipped', 'Pending'].includes(sellerStatus)) {
+    return res.status(400).json({ message: "Invalid seller status value" });
+  }
 
   try {
-    // Find the order and product
     const order = await Order.findById(orderId);
-    const productIndex = order.products.findIndex(
-      (p) => p.toString() === productId
+    
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    
+    console.log("Order Products:", JSON.stringify(order.product, null, 2)); // Log to see the actual product details in the order
+    console.log("Seller ID from token:", sellerId); // Log to see the actual seller ID from the token
+  
+    const productIndex = order.product.findIndex(
+      (p) => p._id.toString() === productId && p.seller.toString() === sellerId.toString()
     );
-
+    
+    
     if (productIndex === -1) {
-      return res.status(404).json({ message: "Product not found in order" });
+      return res.status(404).json({ message: "Product not found in order or you are not authorized to update this product" });
     }
 
     // Update the product status in the order
-    order.products[productIndex].status = status;
-
-    // Update the order status based on product statuses
-    const productStatuses = order.products.map((p) => p.status);
-    if (productStatuses.includes("Shipped")) {
-      order.status = "Shipped";
-    } else {
-      order.status = "New";
-    }
+    order.product[productIndex].sellerStatus = sellerStatus; 
 
     await order.save();
-
     res.status(200).json(order);
   } catch (error) {
-    res.status(500).json({ message: "Error updating product status" });
+    console.error(error);
+    res.status(500).json({ message: "Error updating product status", error: error.message });
   }
 });
 
-app.patch(
-  "/updateProductStatus/:orderId/:productId/:sellerStatus",
-  async (req, res) => {
-    const { orderId, productId, sellerStatus } = req.params;
 
-    try {
-      // Find the order
-      const order = await Order.findById(orderId);
-
-      console.log(order);
-
-      if (!order) {
-        return res.status(404).json({ message: "Order not found" });
-      }
-
-      // Find the product in the order
-      const productInOrder = order.product.find((product) =>
-        product.productId.equals(productId)
-      );
-
-      console.log("Dawg", productInOrder);
-
-      if (!productInOrder) {
-        return res
-          .status(404)
-          .json({ message: "Product not found in the order" });
-      }
-
-      // // Check if the seller can update the product status
-      // if (productInOrder.seller !== req.user.id) {
-      //   return res.status(403).json({ message: 'You are not authorized to update this product' });
-      // }
-      console.log("sellerStatus:", sellerStatus);
-
-      if (sellerStatus === "Shipped" || sellerStatus === "Canceled") {
-        // Update the status of the product
-        productInOrder.sellerStatus = sellerStatus;
-
-        console.log("Status: ", sellerStatus);
-        console.log("productInOrder: ", productInOrder);
-
-        order.markModified("product"); // Add this line to mark the 'product' field as modified
-        await order.save();
-
-        console.log("order after save: ", order); // Log the order after saving it to see the updated status
-
-        res
-          .status(200)
-          .json({ message: `Product status updated to "${sellerStatus}"` });
-      } else {
-        res.status(400).json({ message: "Invalid status" });
-      }
-    } catch (error) {
-      res.status(500).json({ message: "Error updating product status" });
-    }
-  }
-);
-
-app.get("/sales-statistics/",
-passport.authenticate("jwt", { session: false }),
-getSellerFromJwt,
-async (req, res) => {
+app.get("/sales-statistics/", getSellerFromJwt, async (req, res) => {
   try {
-    const sellerId  = req.seller._id;
+    const sellerId = req.seller._id; // Adjusted to use req.seller._id to get the seller ID
 
     // Validate seller ID
     const seller = await Seller.findById(sellerId);
@@ -560,21 +530,14 @@ async (req, res) => {
 
     orders.forEach((order) => {
       order.product.forEach((product) => {
-        // Get detailed product info, including the seller ID
-        const detailedProduct = product.productId;
-
         // Check if the product belongs to the seller we are calculating the stats for
-        if (
-          detailedProduct &&
-          detailedProduct.seller &&
-          detailedProduct.seller._id.toString() === sellerId
-        ) {
+        if (product.seller.toString() === sellerId.toString()) {
           if (product.sellerStatus === "Shipped") {
             stats.shipped += 1;
           } else if (product.sellerStatus === "Canceled") {
             stats.canceled += 1;
           }
-
+    
           if (product.customerStatus === "Accepted") {
             stats.accepted += 1;
           } else if (product.customerStatus === "Rejected") {
@@ -585,14 +548,16 @@ async (req, res) => {
         }
       });
     });
-
+    
     res.json({ statistics: stats });
+  
   } catch (error) {
     res
       .status(500)
       .json({ message: "Internal server error", error: error.message });
   }
 });
+
 
 //==============Order CRUD for customer===============//
 
@@ -712,14 +677,20 @@ app.patch(
       }
 
       // Check if the order belongs to the logged-in customer
+
+
+      // Check if the order belongs to the logged-in customer
       if (!order.customer.equals(req.customer._id)) {
         return res.status(403).json({ message: "Not authorized to update this order" });
       }
 
       // Find the product in the order
-      const productInOrder = order.product.find((product) =>
-        product.productId.equals(productId)
-      );
+      console.log('Order products:', order.product);
+
+      const productInOrder = order.product.find((product) => 
+      product._id.equals(productId)
+    );
+    
 
       if (!productInOrder) {
         return res
@@ -743,6 +714,7 @@ app.patch(
         res.status(400).json({ message: "Invalid status" });
       }
     } catch (error) {
+      console.error(error);
       res.status(500).json({ message: "Error updating product status" });
     }
   }

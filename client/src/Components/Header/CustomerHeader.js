@@ -20,9 +20,10 @@ function CustomerHeader() {
           Home
         </Nav.Link>
 
-        <Nav.Link as={Link} to="/customer">Products</Nav.Link>
+        <Nav.Link as={Link} to="/customer/customerProduct
+        ">Products</Nav.Link>
         { customerId && <Nav.Link as={Link} to={`/customer/dashboard`}>Profile</Nav.Link> }
-        { customerId && <Nav.Link as={Link} to={`/customer/logout`}>Logout</Nav.Link> }
+        { <Nav.Link as={Link} to={`/customer/logout`}>Logout</Nav.Link> }
       </Nav>
     </Navbar>
   );

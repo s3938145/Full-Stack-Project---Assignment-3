@@ -44,8 +44,10 @@ export async function updateProductCustomerStatus(orderId, productId, customerSt
     return res.data;
   } catch (error) {
     console.error('Error updating product customer status:', error);
+    console.error('Error details:', error.response.data);
     // Handle error appropriately in your UI
-  }
+}
+
 }
 
 export async function getCustomerDetails() {
