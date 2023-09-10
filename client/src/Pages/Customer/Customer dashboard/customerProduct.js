@@ -7,34 +7,37 @@ const ProductList = () => {
   const [cart, setCart] = useState([]);
   const [customerId, setCustomerId] = useState(null);
   
-
   useEffect(() => {
     const token = localStorage.getItem('token');
   
-    if(!token) {
+    if (!token) {
       console.error('No token found');
       return;
     }
   
-    axios.get("/productCustomer", { 
-      headers: { 
-        'Authorization': `Bearer ${token}` 
+    axios.get("/productCustomer", {
+      headers: {
+        'Authorization': `Bearer ${token}`
       }
     })
     .then((response) => {
       console.log(response.data); // To check the structure of the data
-      setProductCustomer(response.data.products); // Adjust according to the actual structure of your data
-      setCustomerId(response.data.customerId); // Adjust according to the actual structure of your data
+      if (Array.isArray(response.data)) {
+        setProductCustomer(response.data); // Adjust according to the actual structure of your data
+      } else {
+        setProductCustomer([]);
+      }
     })
     .catch((error) => {
       console.error("Error fetching products:", error);
     });
-    
+  
     const savedCart = JSON.parse(localStorage.getItem("cart"));
     if (savedCart) {
       setCart(savedCart);
     }
   }, []);
+  
   
 
   // Function to handle adding a product to the cart
