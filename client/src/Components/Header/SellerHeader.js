@@ -38,7 +38,7 @@ function SellerHeader() {
         </Nav.Link>
 
         {/* Logout Link */}
-        <Nav.Link as={NavLink} to="/seller/logout" className={({ isActive }) => isActive ? 'active' : ''}>
+        <Nav.Link as={NavLink} to="/logout" className={({ isActive }) => isActive ? 'active' : ''}>
           Logout
         </Nav.Link>
       </Nav>

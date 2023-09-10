@@ -761,6 +761,27 @@ app.get("/getProduct/:productId", async (req, res) => {
   }
 });
 
+// Search for products by name
+app.get("/searchProduct", async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    // Use Mongoose to find products that match the search query
+    const products = await Product.find({ name: new RegExp(query, 'i') });
+
+    if (!products.length) {
+      // If no products match the search query, return a not found message
+      return res.status(404).json({ message: "No products found" });
+    }
+
+    // If products are found, return them in the response
+    res.status(200).json(products);
+  } catch (error) {
+    // Handle any errors that occur during the database query
+    res.status(500).json({ message: "Error fetching products", error: error.message });
+  }
+});
+
 
 
 //=============Sign/Auth==========//
