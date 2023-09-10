@@ -3,15 +3,15 @@ import { Button, Nav, NavItem } from 'react-bootstrap'
 import { Link, NavLink, Outlet, useLoaderData } from 'react-router-dom'
 import { getProductsSeller } from '../../APIs/productAPI'
 
-export async function loadProductsBySeller({ params }) {
+export async function loadProductsBySeller() {
     const productsSeller = await getProductsSeller();
     return productsSeller;
 }
 
 export default function Products() {
-    const products = useLoaderData()
+    const productsSeller = useLoaderData()
 
-    const productList = products.map((p, _id) => 
+    const productList = productsSeller.map((p, _id) => 
     <NavItem key={p._id}>
         <NavLink
             as={Link}

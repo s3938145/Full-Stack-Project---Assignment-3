@@ -312,19 +312,20 @@ app.post(
     }
 
     try {
-      const { name, basicAttributes, category } = req.body;
+      const { name, category, price } = req.body;
 
       // Use the Product.create method to create a new product
       const newProduct = await Product.create({
         name,
         category,
+        price,
         seller: req.seller._id,
-        basicAttributes,
+        // basicAttributes,
       });
 
       res.status(201).json({ message: "Product added", newProduct });
     } catch (error) {
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({ message: "Could not create Product" });
     }
   }
 );
@@ -333,7 +334,7 @@ app.post(
 app.get(
   "/products",
   passport.authenticate("jwt", { session: false }),
-  getSellerByEmail,
+  getSellerFromJwt,
   checkRole("Seller"),
   async (req, res) => {
     if (req.seller.status !== "Approved") {
@@ -342,7 +343,7 @@ app.get(
         .json({ message: "Only approved sellers can view products" });
     }
     try {
-      const sellerId = req.query.sellerId;
+      const sellerId = req.seller._id;
       const products = await Product.find({ seller: sellerId });
       res.status(200).json(products);
     } catch (error) {
@@ -355,7 +356,7 @@ app.get(
 app.put(
   "/products/:id",
   passport.authenticate("jwt", { session: false }),
-  getSellerByEmail,
+  getSellerFromJwt,
   checkRole("Seller"),
   async (req, res) => {
     if (req.seller.status !== "Approved") {
@@ -365,7 +366,7 @@ app.put(
     }
     try {
       const productId = req.params.id;
-      const sellerId = req.query.sellerId;
+      const sellerId = req.seller._id;
       const updates = req.body;
 
       const product = await Product.findOne({
@@ -390,7 +391,7 @@ app.put(
 app.delete(
   "/products/:id",
   passport.authenticate("jwt", { session: false }),
-  getSellerByEmail,
+  getSellerFromJwt,
   checkRole("Seller"),
   async (req, res) => {
     if (req.seller.status !== "Approved") {
@@ -400,7 +401,7 @@ app.delete(
     }
     try {
       const productId = req.params.id;
-      const sellerId = req.query.sellerID;
+      const sellerId = req.seller._id;
       const product = await Product.findOneAndDelete({
         _id: productId,
         seller: sellerId,

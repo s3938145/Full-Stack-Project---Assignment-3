@@ -2,15 +2,24 @@ import axios from "axios"
 
 // Get All Products from a specific Seller
 export async function getProductsSeller() {
-    var res = await axios.get('/products')
-    console.log(res.data)
-    return res.data
+    try {
+        var res = await axios.get('/products')
+        console.log(res.data)
+        return res.data
+    } catch(error) {
+        alert(Object.values(error.response.data) + ".")   
+    }
 }
 
 // Add a new Product
-export async function addProduct() {
-    var res = await axios.post('/products')
-    console.log(res.data)
+export async function addProduct(newData) {
+    try {
+        var res = await axios.post('/products', newData)
+        alert(Object.values(res.data) + ".")
+        console.log(res.data)
+    } catch(error) {
+        alert(Object.values(error.response.data) + ".")    
+    }
 }
 
 // Update a Product by ID
