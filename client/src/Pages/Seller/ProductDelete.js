@@ -1,7 +1,7 @@
 import React from 'react'
 import { getProduct, removeProduct } from '../../APIs/productAPI'
 import { Form, redirect, useLoaderData, useNavigate } from 'react-router-dom';
-import { Form as BsForm, Button, ButtonGroup, Stack } from "react-bootstrap";
+import { Form as BsForm, Button, ButtonGroup } from "react-bootstrap";
 
 export async function loadProduct({ params }) {
   const product = await getProduct(params.productId)
