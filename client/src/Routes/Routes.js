@@ -42,7 +42,6 @@ import { useAuth } from "../Components/Authentication/authProvider";
 import Product, { loadProduct, saveProduct } from "../Pages/Seller/Product";
 import SellerDashboard, { loadStatistics } from "../Pages/Seller/SellerDashboard";
 import UserProfile from "../Pages/Customer/UserProfile";
-import Loginv2, { logInUserV2 } from "../Pages/Login/Loginv2";
 import OrderSummaryPage from "../Pages/Customer/customerOrder/orderSummary";
 
 // Pages
@@ -141,31 +140,31 @@ function Routes() {
         element: <SellerDashboard /> , 
         loader: loadStatistics
       },
-        {
-          path: "/seller/products",
-          element: <Products />,
-          loader: loadProductsBySeller,
-          children: [
-            {
-              path: "/seller/products/add",
-              element: <ProductAdd />,
-              loader: loadCategories,
-              action: createProduct,
-            },
-            {
-              path: ":productId",
-              element: <Product />,
-              loader: loadProduct,
-              action: saveProduct,
-            },
-            {
-              path: ":productId/delete",
-              element: <ProductDelete />,
-              loader: loadProduct,
-              action: deleteProduct
-            }
-          ]
-        },
+      {
+        path: "/seller/products",
+        element: <Products />,
+        loader: loadProductsBySeller,
+        children: [
+          {
+            path: "/seller/products/add",
+            element: <ProductAdd />,
+            loader: loadCategories,
+            action: createProduct,
+          },
+          {
+            path: ":productId",
+            element: <Product />,
+            loader: loadProduct,
+            action: saveProduct,
+          },
+          {
+            path: ":productId/delete",
+            element: <ProductDelete />,
+            loader: loadProduct,
+            action: deleteProduct
+          }
+        ]
+      },
         {
           path: "/seller/products/delete",
           element: <ProductDelete />

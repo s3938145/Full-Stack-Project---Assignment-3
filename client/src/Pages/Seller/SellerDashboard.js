@@ -1,7 +1,8 @@
 import { getSaleStatistics } from '../../APIs/sellerAPI';
-import { useLoaderData } from 'react-router-dom';
+import { Outlet, useLoaderData } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { Table } from 'react-bootstrap';
+import SellerHeader from '../../Components/Header/SellerHeader';
 
 export async function loadStatistics() {
   const statistics = await getSaleStatistics();
@@ -21,26 +22,32 @@ export default function SellerDashboard() {
   }
 
   return (
-      <Table>
-        <thead>
-          <tr>
-            <th> New Order(s) </th>
-            <th> Shipped Order(s) </th>
-            <th> Canceled Order(s) </th>
-            <th> Accepted Order(s) </th>
-            <th> Rejected Order(s) </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td> {data.statistics.new} </td>
-            <td> {data.statistics.shipped} </td>
-            <td> {data.statistics.canceled} </td>
-            <td> {data.statistics.accepted} </td>
-            <td> {data.statistics.rejected} </td>
-          </tr>
-        </tbody>
-      </Table>
+    <div>
+      <SellerHeader />
+      <div className='container-body'> 
+        <Table >
+          <thead>
+            <tr>
+              <th> New Order(s) </th>
+              <th> Shipped Order(s) </th>
+              <th> Canceled Order(s) </th>
+              <th> Accepted Order(s) </th>
+              <th> Rejected Order(s) </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td> {data.statistics.new} </td>
+              <td> {data.statistics.shipped} </td>
+              <td> {data.statistics.canceled} </td>
+              <td> {data.statistics.accepted} </td>
+              <td> {data.statistics.rejected} </td>
+            </tr>
+          </tbody>
+        </Table>
+      </div>
+      <Outlet />
+    </div>
   );
 }
 
