@@ -12,3 +12,4 @@ export async function updateSeller(newData, email) {
     var res = await axios.patch(`/sellers/${email}`, newData)
     console.log(res.data)
 }
+

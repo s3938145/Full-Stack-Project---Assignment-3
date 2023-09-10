@@ -10,7 +10,7 @@ function SellerApproval() {
   const [updatedSellers, setUpdatedSellers] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchSellers = async () => {

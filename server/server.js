@@ -665,15 +665,39 @@ app.get("/customerOrders/:customerId", async (req, res) => {
 
   try {
     // Find orders for the customer
-    const orders = await Order.find({ customer: customerId }).populate(
-      "product"
-    );
+    const orders = await Order.find({ customer: customerId })
+                         .populate({
+                             path: 'product.productId',
+                             populate: {
+                                 path: 'seller category',
+                                 select: 'businessName name' // select business name from seller and name from category
+                             }
+                         });
+
     console.log("here is the thing", orders);
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: "Error fetching customer orders" });
   }
 });
+
+// Get customer details
+app.get('/customer/:customerId', async (req, res) => {
+  try {
+    const customer = await Customer.findById(req.params.customerId);
+    if (customer) {
+      res.json(customer);
+    } else {
+      res.status(404).send('Customer not found');
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+
+
 
 // Customer can accept or reject products in their order
 app.patch(
@@ -724,7 +748,7 @@ app.patch(
 
 
 // Endpoint to get all products for a customer
-app.get("/productCustomer", async (req, res) => {
+app.get("/productCustomer",getCustomerFromJwt ,async (req, res) => {
   try {
     // Assuming you have a customer ID available in the request, you can use it to find products
     // Also, populate the 'seller' field to get the seller's information

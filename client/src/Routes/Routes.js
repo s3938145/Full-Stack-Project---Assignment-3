@@ -41,6 +41,7 @@ import axios from "axios";
 import { useAuth } from "../Components/Authentication/authProvider";
 import Product, { loadProduct } from "../Pages/Seller/Product";
 
+import UserProfile from '../Pages/Customer/UserProfile';
 // Pages
 
 function Routes() {
@@ -176,20 +177,20 @@ function Routes() {
         },
       ],
     },
-    {
-      path:"/customer",
-      element: <ProtectedRoutes/>,
-      children:[
         {
-        path:"/customer/customerdashboard/customerProduct",
-        element: <ProductList/> 
-        },
-        {
-          path:"/customer/CartPage",
-          element:<CartPage/>
-        }
-      ]
-    }
+          path: "/customer",
+          element: <ProtectedRoutes />,
+          children: [
+            {
+              path: ":customerId",
+              element: <UserProfile />,
+            },
+            {
+              path: "logout",
+              element: <div>Logout</div>,  // Handle logout properly
+            },
+          ],
+        },        
   ];
 
   const router = createBrowserRouter([
