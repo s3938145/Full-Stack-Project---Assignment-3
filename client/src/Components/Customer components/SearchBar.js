@@ -10,7 +10,6 @@ function SearchBar() {
     try {
       const response = await axios.get(`/searchProduct?query=${query}`);
       
-      // Redirect to the ProductPage with the search results as state
       navigate('/customer/productPage', { state: { products: response.data } });
     } catch (error) {
       console.error("Error fetching products", error);
@@ -18,14 +17,15 @@ function SearchBar() {
   };
 
   return (
-    <div>
+    <div className="d-flex justify-content-center my-3">
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search for a product..."
+        className="form-control w-50"
       />
-      <button onClick={handleSearch}>Search</button>
+      <button onClick={handleSearch} className="btn btn-primary ms-2">Search</button>
     </div>
   );
 }
