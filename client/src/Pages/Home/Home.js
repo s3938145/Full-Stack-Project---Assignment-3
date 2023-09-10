@@ -32,7 +32,7 @@ export default function Home() {
                     </Link>
 
                     {/* Go to Seller's Page */}
-                    <Link to={'/seller/dashboard'}>
+                    <Link to={'/seller'}>
                         <Button size="lg" variant="primary">
                             Go to Seller Page
                         </Button>

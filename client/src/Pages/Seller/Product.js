@@ -3,7 +3,7 @@ import { Form, useLoaderData, useNavigate, useRouteLoaderData } from 'react-rout
 import { Form as BsForm, Button, ButtonGroup, Stack } from "react-bootstrap";
 
 export async function loadProduct({ params }) {
-    const product = await getProduc
+    const product = await getProduct
 }
 
 export default function Product() { 

@@ -35,7 +35,7 @@ const productSchema = new Schema({
   category: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
   dateAdded: { type: Date, default: Date.now }, // Date when the product is added
   seller: { type: Schema.Types.ObjectId, ref: 'Seller' }, // Reference to the seller
-  price: { type: Number, required: true, default: null },
+  price: { type: Number, required: true, default: 0 },
 });
 
 // schema for orders

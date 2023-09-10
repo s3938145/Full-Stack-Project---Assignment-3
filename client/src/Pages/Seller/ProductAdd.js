@@ -1,5 +1,5 @@
 import { Form as BsForm, Button, ButtonGroup, Stack } from 'react-bootstrap';
-import { Form, redirect, useLoaderData, useNavigate, useRouteLoaderData } from 'react-router-dom';
+import { Form, redirect, useLoaderData, useNavigate } from 'react-router-dom';
 
 import { addProduct } from "../../APIs/productAPI";
 import { getCategories } from '../../APIs/categoryAPI';
@@ -31,31 +31,38 @@ export default function ProductAdd() {
             <h2> Create new Product </h2>
             <BsForm as={Form} method='post' className="login_container">
 
-                <BsForm.Group controlId='name'>
+                <BsForm.Group className="w-100 p-2" controlId='name'>
                     <BsForm.Label> Product Name </BsForm.Label>
                     <BsForm.Control
-                        as='input'
                         name='name'
+                        as='input'
                         type='text'
                     />
                 </BsForm.Group>
 
-                <BsForm.Group controlId='category'>
+                <BsForm.Group className="w-100 p-2" controlId='category'>
                     <BsForm.Label> Category </BsForm.Label>
-                    <BsForm.Select>
+                    <BsForm.Select 
+                    name='category'
+                    >
                         <option> None </option>
                         {categoryList}
                     </BsForm.Select>
                 </BsForm.Group>
 
-                <BsForm.Group controlId='sellerId'>
-                    <BsForm.Label> Seller: </BsForm.Label>
+                <BsForm.Group className="w-100 p-2" controlId='price'>
+                    <BsForm.Label> Price </BsForm.Label>
+                    <BsForm.Control 
+                        as='input'
+                        name='price'
+                        type='text'
+                    />
                 </BsForm.Group>
 
                 <br />
 
                 <Stack gap={2}>
-                    <Button variant="success" as="input" type="submit" value="Create Category" />
+                    <Button variant="success" as="input" type="submit" value="Create Product" />
                     <Button variant="danger" as="input" type="button" value="Cancel" onClick={() => navigate(-1)} />
                 </Stack>
             </BsForm>
