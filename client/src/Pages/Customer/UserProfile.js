@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CustomerHeader from '../../Components/Header/CustomerHeader';
 
-function MainComponent() {
+export default function UserProfile() {
   const { customerId } = useParams();
   console.log("MainComponent customerId:", customerId); 
 
@@ -26,5 +26,3 @@ function MainComponent() {
   );
 }
 
-
-export default MainComponent;

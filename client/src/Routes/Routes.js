@@ -1,29 +1,13 @@
 import React from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
-// Pages
-
-// Home 
-
 // Home 
 import Home from "../Pages/Home/Home";
 import NotFound from "../Pages/Not-Found/NotFound";
 
 // Admin
-
-// Admin
 import Admin from "../Pages/Admin/Admin";
 import AdminIndex from "../Pages/Admin/Index/AdminIndex";
-import { updateSeller } from '../APIs/sellerAPI';
-import SellerApproval from '../Pages/Admin/SellerApproval';
-
-// Category 
-import Categories, {loadCategories,} from "../Pages/Admin/Categories/Categories";
-import Category, {loadCategory,saveCategory,} from "../Pages/Admin/Categories/Category";
-import CategoryDelete, {deleteCategory,} from "../Pages/Admin/Categories/CategoryDelete";
-import CategoryUpdateAttribute, {appendAttribute,} from "../Pages/Admin/Categories/CategoryUpdateAttribute";
-import CategoryAdd, {createCategory,} from "../Pages/Admin/Categories/CategoryAdd";
-
 
 // Authentication
 import { updateSeller } from '../APIs/sellerAPI';
@@ -43,9 +27,6 @@ import Register, { registerUser } from "../Pages/Register/Register";
 import { Logout } from '../Pages/Login/Logout';
 
 // Seller
-import { Logout } from '../Pages/Login/Logout';
-
-// Seller
 import Sellers from "../Pages/Admin/Sellers/Sellers";
 import ProductAdd, { createProduct } from "../Pages/Seller/ProductAdd";
 import ProtectedRoutes from "./ProtectedRoutes";
@@ -60,18 +41,11 @@ import axios from "axios";
 import { useAuth } from "../Components/Authentication/authProvider";
 import Product, { loadProduct, saveProduct } from "../Pages/Seller/Product";
 import SellerDashboard, { loadStatistics } from "../Pages/Admin/Sellers/SellerDashboard";
+import UserProfile from "../Pages/Customer/UserProfile";
 
 // Pages
 
 function Routes() {
-  const { token } = useAuth();
-
-  if(token) {
-    axios.defaults.headers.common["Authorization"] = "Bearer " + token;
-  } else {
-    axios.defaults.headers.common['Authorization'] = null;
-  }
-
   const { token } = useAuth();
 
   if(token) {
