@@ -722,9 +722,8 @@ app.patch(
 app.get("/productCustomer", async (req, res) => {
   try {
     // Assuming you have a customer ID available in the request, you can use it to find products
-
-    // Find all products associated with the customer (replace 'customerIdField' with your actual field)
-    const products = await Product.find();
+    // Also, populate the 'seller' field to get the seller's information
+    const products = await Product.find().populate('seller');
 
     res.status(200).json(products);
   } catch (error) {
@@ -732,6 +731,28 @@ app.get("/productCustomer", async (req, res) => {
   }
 });
 
+
+
+// Define a route to get a product by its ID
+app.get("/getProduct/:productId", async (req, res) => {
+  try {
+    const productId = req.params.productId;
+
+    // Use Mongoose to find the product by its ID
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      // If the product with the given ID is not found, return an error
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // If the product is found, return it in the response
+    res.status(200).json(product);
+  } catch (error) {
+    // Handle any errors that occur during the database query
+    res.status(500).json({ message: "Error fetching product", error: error.message });
+  }
+});
 
 
 
