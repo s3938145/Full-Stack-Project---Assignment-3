@@ -3,13 +3,13 @@ import { getCustomerOrders } from "../../APIs/customerAPI";
 import OrderDetail from "./OrderDetail"; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function OrderList({ customerId }) {
+function OrderList() {
   const [orders, setOrders] = useState(null);
 
   useEffect(() => {
     async function fetchOrders() {
       try {
-        const data = await getCustomerOrders(customerId);
+        const data = await getCustomerOrders();
         setOrders(data);
       } catch (error) {
         console.error(error);
@@ -17,7 +17,7 @@ function OrderList({ customerId }) {
     }
 
     fetchOrders();
-  }, [customerId]);
+  }, []);
 
   return (
     <div>

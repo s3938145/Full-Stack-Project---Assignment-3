@@ -2,27 +2,21 @@ import React, { useEffect, useState } from "react";
 import { getCustomerDetails } from "../../APIs/customerAPI";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function CustomerProfile({ customerId }) {
+function CustomerProfile() {
   const [customerDetails, setCustomerDetails] = useState(null);
 
   useEffect(() => {
-  async function fetchCustomerDetails() {
-    if (!customerId) {
-      console.error('customerId is undefined');
-      return;
+    async function fetchCustomerDetails() {
+      try {
+        const data = await getCustomerDetails();
+        setCustomerDetails(data);
+      } catch (error) {
+        console.error(error);
+      }
     }
 
-    try {
-      const data = await getCustomerDetails(customerId);
-      setCustomerDetails(data);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  fetchCustomerDetails();
-}, [customerId]);
-
+    fetchCustomerDetails();
+  }, []);
 
   return (
     <div className="card">

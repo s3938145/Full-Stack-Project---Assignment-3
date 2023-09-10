@@ -26,7 +26,8 @@ function OrderDetail({ order }) {
     }
   }
   
-  
+  console.log('Order:', order);
+
   
 
   return (

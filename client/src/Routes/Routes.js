@@ -190,7 +190,7 @@ function Routes() {
           element: <ProtectedRoutes />,
           children: [
             {
-              path: ":customerId",
+              path: "dashboard",
               element: <UserProfile />,
             },
             {
