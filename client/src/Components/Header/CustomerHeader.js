@@ -16,6 +16,7 @@ function CustomerHeader() {
       <Nav className="mr-auto">
         <Nav.Link as={Link} to="/customer">Products</Nav.Link>
         { customerId && <Nav.Link as={Link} to={`/customer/dashboard`}>Profile</Nav.Link> }
+        { customerId && <Nav.Link as={Link} to={`/customer/logout`}>Logout</Nav.Link> }
       </Nav>
     </Navbar>
   );

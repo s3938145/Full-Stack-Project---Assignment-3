@@ -195,7 +195,7 @@ function Routes() {
             },
             {
               path: "logout",
-              element: <div>Logout</div>,  // Handle logout properly
+              element: <Logout />  // Handle logout properly
             },
           ],
         },        
