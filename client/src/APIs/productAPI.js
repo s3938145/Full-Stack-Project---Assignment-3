@@ -33,6 +33,14 @@ export async function addProduct(newData) {
     } catch(error) {
         alert(Object.values(error.response.data) + ".")    
     }
+export async function addProduct(newData) {
+    try {
+        var res = await axios.post('/products', newData)
+        alert(Object.values(res.data) + ".")
+        console.log(res.data)
+    } catch(error) {
+        alert(Object.values(error.response.data) + ".")    
+    }
 }
 
 // Update a Product by ID

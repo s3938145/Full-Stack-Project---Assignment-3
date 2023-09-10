@@ -4,8 +4,12 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 // Pages
 
 // Home 
+
+// Home 
 import Home from "../Pages/Home/Home";
 import NotFound from "../Pages/Not-Found/NotFound";
+
+// Admin
 
 // Admin
 import Admin from "../Pages/Admin/Admin";
@@ -22,8 +26,23 @@ import CategoryAdd, {createCategory,} from "../Pages/Admin/Categories/CategoryAd
 
 
 // Authentication
+import { updateSeller } from '../APIs/sellerAPI';
+import SellerApproval from '../Pages/Admin/SellerApproval';
+
+// Category 
+import Categories, {loadCategories,} from "../Pages/Admin/Categories/Categories";
+import Category, {loadCategory,saveCategory,} from "../Pages/Admin/Categories/Category";
+import CategoryDelete, {deleteCategory,} from "../Pages/Admin/Categories/CategoryDelete";
+import CategoryUpdateAttribute, {appendAttribute,} from "../Pages/Admin/Categories/CategoryUpdateAttribute";
+import CategoryAdd, {createCategory,} from "../Pages/Admin/Categories/CategoryAdd";
+
+
+// Authentication
 import Login, { logInUser } from "../Pages/Login/Login";
 import Register, { registerUser } from "../Pages/Register/Register";
+import { Logout } from '../Pages/Login/Logout';
+
+// Seller
 import { Logout } from '../Pages/Login/Logout';
 
 // Seller
@@ -45,6 +64,14 @@ import SellerDashboard, { loadStatistics } from "../Pages/Admin/Sellers/SellerDa
 // Pages
 
 function Routes() {
+  const { token } = useAuth();
+
+  if(token) {
+    axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+  } else {
+    axios.defaults.headers.common['Authorization'] = null;
+  }
+
   const { token } = useAuth();
 
   if(token) {
@@ -94,6 +121,11 @@ function Routes() {
         },
         { path: "/admin/sellers", element: <Sellers /> },
       ],
+    },
+    {
+      path: "/sellerUpdate",
+      element: <SellerApproval />,
+      action: updateSeller
     },
     {
       path: "/sellerUpdate",
@@ -170,11 +202,29 @@ function Routes() {
           ]
         },
         {
+          path: "/seller/products/delete",
+          element: <ProductDelete />
+        },
+        {
           path: "/seller/logout",
           element: <div>Logout</div>,
         },
       ],
     },
+        {
+          path: "/customer",
+          element: <ProtectedRoutes />,
+          children: [
+            {
+              path: ":customerId",
+              element: <UserProfile />,
+            },
+            {
+              path: "logout",
+              element: <div>Logout</div>,  // Handle logout properly
+            },
+          ],
+        },        
   ];
 
   const router = createBrowserRouter([
