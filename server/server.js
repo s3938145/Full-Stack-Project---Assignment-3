@@ -342,7 +342,7 @@ app.get(
         .json({ message: "Only approved sellers can view products" });
     }
     try {
-      const sellerId = req.query.sellerID;
+      const sellerId = req.query.sellerId;
       const products = await Product.find({ seller: sellerId });
       res.status(200).json(products);
     } catch (error) {
@@ -365,7 +365,7 @@ app.put(
     }
     try {
       const productId = req.params.id;
-      const sellerId = req.query.sellerID;
+      const sellerId = req.query.sellerId;
       const updates = req.body;
 
       const product = await Product.findOne({

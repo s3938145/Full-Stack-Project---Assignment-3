@@ -25,7 +25,7 @@ import CategoryAdd, {
 import Login, { logInUser } from "../Pages/Login/Login";
 import Register, { registerUser } from "../Pages/Register/Register";
 import Sellers from "../Pages/Admin/Sellers/Sellers";
-import ProductAdd from "../Pages/Seller/ProductAdd";
+import ProductAdd, { createProduct } from "../Pages/Seller/ProductAdd";
 import ProtectedRoutes from "./ProtectedRoutes";
 import CartPage from "../Pages/Customer/Cart/CartPage";
 import ShoppingCart from "../Pages/Customer/Cart/CartPage";
@@ -124,12 +124,14 @@ function Routes() {
       element: <ProtectedRoutes />,
       children: [
         {
-          path: "/seller/dashboard",
+          path: "/seller",
           element: <div>Seller's Dashboard</div>,
         },
         {
           path: "/seller/productAdd",
-          element: <div> Product Add </div>,
+          element: <ProductAdd />,
+              loader: loadCategories,
+              action: createProduct,
         },
         {
           path: "/seller/logout",
