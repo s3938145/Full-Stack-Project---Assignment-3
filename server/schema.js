@@ -78,7 +78,8 @@ const orderSchema = new Schema({
       price : {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Price'
-      }
+      },
+      seller:{type: Schema.Types.ObjectId, ref: 'Seller'}
     }
   ],
   datePlaced: { type: Date, default: Date.now },
