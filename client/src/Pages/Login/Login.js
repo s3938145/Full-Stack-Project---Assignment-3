@@ -66,6 +66,6 @@ export async function logInUser({ request, setToken }) {
     const token = await signIn(request);
     if (token) {
         setToken(token);
-        return redirect('/');
     }
+    return redirect('/');
 }

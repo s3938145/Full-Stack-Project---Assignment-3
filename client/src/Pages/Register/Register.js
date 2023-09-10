@@ -3,6 +3,7 @@ import { Form, Link, redirect } from "react-router-dom";
 
 import '../../index.css';
 import { registerNewUser } from "../../APIs/authAPI";
+import { useState } from "react";
 
 export async function registerUser({ request }) {
     const formData = await request.formData();
@@ -12,6 +13,12 @@ export async function registerUser({ request }) {
 }
 
 export default function Register() {
+    const [role, setRole] = useState('Seller')
+
+    function handleChange(event) {
+        setRole(event.target.value)
+    }
+
     return (         
         <BsForm as={Form} method='post' className="login_container">
             <div className="login_title">Register</div>
@@ -42,28 +49,37 @@ export default function Register() {
                 />
             </BsForm.Group>
 
-            
             {/* Address Field */}
-            <BsForm.Group className="login_input" controlId="address">
-                <BsForm.Control 
-                    type="text"
-                    name="address"
-                    placeholder="Address"
-                />
+
+
+            {(role === "Seller") ? 
+
+            <BsForm.Group className="login_input" controlId="businessName">
+            <BsForm.Control 
+                type="text"
+                name="businessName"
+                placeholder="Name of Business"
+            />
             </BsForm.Group>
 
-            {/* Business Name Field */}
-            <BsForm.Group className="login_input" controlId="businessName">
-                <BsForm.Control 
-                    type="text"
-                    name="businessName"
-                    placeholder="Name of Business"
-                />
+            :
+            
+            <BsForm.Group className="login_input" controlId="address">
+            <BsForm.Control 
+                type="text"
+                name="address"
+                placeholder="Address"
+            />
             </BsForm.Group>
+            }
+
 
             {/* Role Selector */}
             <BsForm.Group className="login_input" controlId="role">
-                <BsForm.Select name="role">
+                <BsForm.Select 
+                name="role"
+                onChange={handleChange}
+                >
                     <option value="Seller">Seller</option>
                     <option value="Customer">Customer</option>
                 </BsForm.Select>
