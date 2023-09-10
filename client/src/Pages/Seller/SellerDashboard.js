@@ -2,9 +2,13 @@ import React from 'react';
 import SalesStatistics from '../../Components/Seller/SaleStatistics';
 import SellerOrders from '../../Components/Seller/SellerOrder';
 import UpdateProductStatus from '../../Components/Seller/UpdateProductStatus';
+import SellerHeader from '../../Components/Header/SellerHeader';
 
 function SellerDashboard() {
-  return (
+  return (     
+
+    <>
+     <SellerHeader />
     <div className="container mt-4">
       <h1 className="text-center mb-5">Seller Dashboard</h1>
       <div className="row gx-5"> {/* Added gutter to give space between the columns */}
@@ -40,6 +44,7 @@ function SellerDashboard() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
