@@ -49,7 +49,7 @@ const sellerSchema = new Schema({
 const productSchema = new Schema({
   name: { type: String, default: 'Unnamed Product' },
   basicAttributes: { type: Object, default: [] },
-  category: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
+  category: { type: Schema.Types.ObjectId, ref: 'Category', default: 'None' },
   dateAdded: { type: Date, default: Date.now }, // Date when the product is added
   seller: { type: Schema.Types.ObjectId, ref: 'Seller' }, // Reference to the seller
   price: { type: Number, required: true, default: 0 },

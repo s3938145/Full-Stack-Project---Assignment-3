@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Form, redirect, useLoaderData } from 'react-router-dom';
+import { Form, useLoaderData } from 'react-router-dom';
 import { getCategory, updateAttributeAppend } from '../../../APIs/categoryAPI';
-import { Form as BsForm, Button, InputGroup } from 'react-bootstrap';
+import { Form as BsForm, Button, InputGroup, Table } from 'react-bootstrap';
 
 export async function loadCategory({ params }) {
     const category = await getCategory(params.categoryName)
@@ -31,8 +31,26 @@ export default function CategoryUpdateAttribute() {
       )
     })
 
+    const attributes = category.additionalAttributes.map((a, index) => {
+      return (
+        <tr key={index}>
+          <th> {a.attributeName}</th>
+          <td> {a.attributeValue} </td>
+          <td> {(a.required) ? 'Required' : 'Optional'}</td>
+          <td></td>
+        </tr>
+      )
+    })
+
   return (
     <div>
+      <br/>
+      <h3> {category.name}'s current attributes</h3>
+      <Table>
+        <thead>
+            {attributes}
+        </thead>
+      </Table>
       <h3> Updating {category.name}'s Attributes</h3>
       <BsForm as={Form} method='post'>
 
@@ -55,7 +73,7 @@ export default function CategoryUpdateAttribute() {
           <BsForm.Control name="id" value={category.additionalAttributes.length + 1}/>
           <BsForm.Control as='input' name="name"/>
           <BsForm.Control as='input' name="value"/>
-          <BsForm.Select name="required">
+          <BsForm.Select name="required" autoFocus>
             <option value="Required">Required</option>
             <option value="Optional">Optional</option>
           </BsForm.Select>

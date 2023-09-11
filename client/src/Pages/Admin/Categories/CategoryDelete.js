@@ -1,7 +1,7 @@
 import React from 'react'
 import { getCategory, removeCategory } from '../../../APIs/categoryAPI'
 import { Form, redirect, useLoaderData, useNavigate } from 'react-router-dom';
-import { Button, ButtonGroup } from 'react-bootstrap';
+import { Form as BsForm, Button, ButtonGroup, InputGroup, Table } from 'react-bootstrap';
 
 export async function loadCategory({ params }) {
   const category = await getCategory(params.categoryName)
@@ -19,17 +19,26 @@ export default function CategoryDelete() {
   const navigate = useNavigate();
   return (
     <>
-      <Form method="post">
-        <div>
-          <label>Deleting Category</label>
-          <input key="name" type="text" name="name" disabled={true} defaultValue={category.name} />
-        </div>
-        <ButtonGroup>
+      <BsForm as={Form} method="post">
+
+        <BsForm.Group className='mb-3' controlId='name'>
+          <BsForm.Label>Deleting Category</BsForm.Label>
+          <BsForm.Control 
+            as='input'
+            type='text'
+            name='name'
+            disabled={true}
+            defaultValue={category.name}
+            autoFocus
+          />
+          {/* <input key="name" type="text" name="name" disabled={true} defaultValue={category.name} /> */}
+        </BsForm.Group>
+
+        <ButtonGroup className='mb-3'>
           <Button variant="success" as="input" type="submit" value="Yes" disabled={category.products.length > 0}/>
           <Button variant="danger" as="input" type="button" value="No" onClick={() => navigate(-1)} />
         </ButtonGroup>
-      </Form>
+      </BsForm>
     </>
-
   )
 }

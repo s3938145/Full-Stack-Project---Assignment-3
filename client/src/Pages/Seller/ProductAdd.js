@@ -36,6 +36,7 @@ export default function ProductAdd() {
                         name='name'
                         as='input'
                         type='text'
+                        autoFocus
                     />
                 </BsForm.Group>
 

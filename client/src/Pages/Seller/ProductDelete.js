@@ -28,6 +28,7 @@ export default function ProductDelete() {
                 type='text'
                 disabled={true}
                 defaultValue={product.name}
+                autoFocus
             />
         </BsForm.Group>
         <ButtonGroup>

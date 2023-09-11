@@ -363,14 +363,13 @@ app.get(
     }
     try {
       const sellerId = req.seller._id;
-      const products = await Product.find({ seller: sellerId }).populate({ path: 'category', select: 'name -_id' });
+      const products = await Product.find({ seller: sellerId }).populate({path: 'category', select: 'name -_id'});
       res.status(200).json(products);
     } catch (error) {
       res.status(500).json({ message: "Could not fetch products" });
     }
   }
 );
-
 
 // UPDATE a product by ID
 app.put(

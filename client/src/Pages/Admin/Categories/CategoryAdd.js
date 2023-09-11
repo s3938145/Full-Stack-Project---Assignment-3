@@ -29,6 +29,7 @@ function CategoryAdd() {
             key="name"
             name="name"
             type="text"
+            autoFocus
           />
         </BsForm.Group>
 

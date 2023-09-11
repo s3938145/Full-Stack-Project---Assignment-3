@@ -37,6 +37,7 @@ export default function Category() {
                         name="newName"
                         type="text"
                         placeholder={category.name}
+                        autoFocus
                     />
                 </BsForm.Group>
 
