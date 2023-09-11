@@ -446,6 +446,11 @@ app.get("/sellerOrders", getSellerFromJwt, async (req, res) => {
     const orders = await Order.find({ "product.seller": sellerId })
       .populate('product.productId'); // Populate product details
 
+    // Filter the products in each order to only include products sold by the current seller
+    orders.forEach(order => {
+      order.product = order.product.filter(prod => prod.seller.equals(sellerId));
+    });
+
     // Fetch additional customer details separately
     for(let order of orders) {
       order.customer = await Customer.findById(order.customer).select('email');
@@ -457,6 +462,7 @@ app.get("/sellerOrders", getSellerFromJwt, async (req, res) => {
     res.status(500).json({ message: "Error fetching seller orders" });
   }
 });
+
 
 
 app.patch("/updateProductStatus/:orderId/:productId", getSellerFromJwt, async (req, res) => {
