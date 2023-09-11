@@ -45,7 +45,7 @@ export default function ProductAdd() {
                     <BsForm.Select 
                     name='category'
                     >
-                        <option> None </option>
+                        <option value={''}> None </option>
                         {categoryList}
                     </BsForm.Select>
                 </BsForm.Group>

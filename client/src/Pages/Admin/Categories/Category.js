@@ -43,7 +43,7 @@ export default function Category() {
 
                 {/* Update Parent Category */}
                 <BsForm.Group className="mb-3" controlId="parent">
-                    <BsForm.Label>Parent Category: {(category.parent === null) ? "None" : category.parent.name}</BsForm.Label>
+                    <BsForm.Label>Parent Category: {(category.parent === null) ? " " : category.parent.name}</BsForm.Label>
                     <BsForm.Select
                         key="parent"
                         name="parent"

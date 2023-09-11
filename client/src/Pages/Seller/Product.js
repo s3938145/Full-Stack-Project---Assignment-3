@@ -22,10 +22,8 @@ export default function Product() {
     const categories = useRouteLoaderData("productCategories")
     const navigate = useNavigate()
 
-    const currentCategory = categories.find((c) => c._id = product.category)
-
     const categoryList = categories.map((cat, _id) => 
-    <option value={(cat._id === null) ? '' : product.category}>{cat.name}</option>
+    <option value={(cat._id === product.category._id) ? '' : cat._id}>{(cat.name === product.category.name) ? 'None' : cat.name}</option>
     )
   return (
     <div>
@@ -40,14 +38,15 @@ export default function Product() {
                     name='name'
                     type='text'
                     placeholder={product.name}
+                    required
                 />
             </BsForm.Group>
 
             {/* Update Product's Category */}
             <BsForm.Group className="w-100 p-2" controlId='category'>
-                <BsForm.Label> Category </BsForm.Label>
-                <BsForm.Select name='category'>
-                    <option value={product.category}>{currentCategory.name}</option>
+                <BsForm.Label> Category</BsForm.Label>
+                <BsForm.Select name='category' required>
+                    <option value={product.category}>{product.category.name}</option>
                     {categoryList}
                 </BsForm.Select>
             </BsForm.Group>
@@ -60,6 +59,7 @@ export default function Product() {
                     name='price'
                     type='text'
                     placeholder={product.price}
+                    required
                 />
             </BsForm.Group>
 

@@ -752,7 +752,7 @@ app.get("/getProduct/:productId", async (req, res) => {
     const productId = req.params.productId;
 
     // Use Mongoose to find the product by its ID
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId).populate({path: 'category', select: 'name -_id'});
 
     if (!product) {
       // If the product with the given ID is not found, return an error
