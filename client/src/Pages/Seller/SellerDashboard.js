@@ -1,53 +1,51 @@
-import { getSaleStatistics } from '../../APIs/sellerAPI';
-import { Outlet, useLoaderData } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
-import { Table } from 'react-bootstrap';
+import React from 'react';
+import SalesStatistics from '../../Components/Seller/SaleStatistics';
+import SellerOrders from '../../Components/Seller/SellerOrder';
+import UpdateProductStatus from '../../Components/Seller/UpdateProductStatus';
 import SellerHeader from '../../Components/Header/SellerHeader';
 
-export async function loadStatistics() {
-  const statistics = await getSaleStatistics();
-  return statistics;
-}
 
-export default function SellerDashboard() {
-  const [data, setData] = useState(null);
-  const stats = useLoaderData();
-
-  useEffect(() => {
-    setData(stats);  // Assuming stats is already an object, not a JSON string
-  }, [stats]);
-
-  if (!data) {
-    return <div>Loading...</div>;
-  }
-
+function SellerDashboard() {
   return (
-    <div>
-      <SellerHeader />
-      <div className='container-body'> 
-        <Table >
-          <thead>
-            <tr>
-              <th> New Order(s) </th>
-              <th> Shipped Order(s) </th>
-              <th> Canceled Order(s) </th>
-              <th> Accepted Order(s) </th>
-              <th> Rejected Order(s) </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td> {data.statistics.new} </td>
-              <td> {data.statistics.shipped} </td>
-              <td> {data.statistics.canceled} </td>
-              <td> {data.statistics.accepted} </td>
-              <td> {data.statistics.rejected} </td>
-            </tr>
-          </tbody>
-        </Table>
+    <>
+    <SellerHeader />
+    <div className="container mt-4">
+    <h1 className="text-center mb-5">Seller Dashboard</h1>
+    <div className="row gx-5"> {/* Added gutter to give space between the columns */}
+      <div className="col-md-4 mb-4">
+        <div className="card h-100"> {/* h-100 to make the card height 100% */}
+          <div className="card-body d-flex flex-column"> {/* d-flex and flex-column to enable flex properties */}
+            <SalesStatistics />
+            <div className="mt-auto"> {/* mt-auto to push the content to the top */}
+              {/* Optional: Add content here */}
+            </div>
+          </div>
+        </div>
       </div>
-      <Outlet />
+      <div className="col-md-4 mb-4">
+        <div className="card h-100">
+          <div className="card-body d-flex flex-column">
+            <SellerOrders />
+            <div className="mt-auto">
+              {/* Optional: Add content here */}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="col-md-4 mb-4">
+        <div className="card h-100">
+          <div className="card-body d-flex flex-column">
+            <UpdateProductStatus />
+            <div className="mt-auto">
+              {/* Optional: Add content here */}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  );
+  </div>
+    </>
+);
 }
 
+export default SellerDashboard;

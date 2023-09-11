@@ -40,7 +40,7 @@ import ProductDelete, { deleteProduct } from "../Pages/Seller/ProductDelete";
 import axios from "axios";
 import { useAuth } from "../Components/Authentication/authProvider";
 import Product, { loadProduct, saveProduct } from "../Pages/Seller/Product";
-import SellerDashboard, { loadStatistics } from "../Pages/Seller/SellerDashboard";
+import SellerDashboard from "../Pages/Seller/SellerDashboard";
 import UserProfile from "../Pages/Customer/UserProfile";
 import ProductPage from "../Pages/Customer/Customer dashboard/ProductPage";
 
@@ -137,8 +137,7 @@ function Routes() {
       id: "productCategories",
       children: [
         { path:"/seller/dashboard", 
-        element: <SellerDashboard /> , 
-        loader: loadStatistics
+        element: <SellerDashboard />
       },
       {
         path: "/seller/products",
