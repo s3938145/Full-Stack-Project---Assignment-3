@@ -12,23 +12,23 @@ export async function loadProductsBySeller() {
 export default function Products() {
     const productsSeller = useLoaderData()
 
-    const productList = productsSeller.map((p, _id) =>
-    <tr>
-        <th>
-            <NavItem key={p._id}>
+    const productList = productsSeller.map((p, index) =>
+    <tr key={index}>
+        <td>
+            <NavItem>
                 <NavLink
                     as={Link}
                     to={`${p._id}`}>
                     <div className='list-items'> {p.name} </div>
                 </NavLink>
             </NavItem>
-        </th>
-        <th>{p.category}</th> 
-        <th>{p.price}</th>
-        <th>{p.dateAdded}</th>
+        </td>
+        <td>{p.category.name}</td>
+        <td>{p.price}</td>
+        <td>{new Date(p.dateAdded).toLocaleDateString()}</td>
     </tr>
+);
 
-    )
 
   return (
     <div>
