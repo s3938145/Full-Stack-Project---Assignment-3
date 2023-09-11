@@ -3,6 +3,7 @@ import SalesStatistics from '../../Components/Seller/SaleStatistics';
 import SellerOrders from '../../Components/Seller/SellerOrder';
 import UpdateProductStatus from '../../Components/Seller/UpdateProductStatus';
 import SellerHeader from '../../Components/Header/SellerHeader';
+import SellerProducts from '../../Components/Seller/SellerProducts';
 
 
 function SellerDashboard() {
@@ -38,7 +39,7 @@ function SellerDashboard() {
           <div className="col-md-4 mb-4">
             <div className="card h-100">
               <div className="card-body d-flex flex-column">
-                {/* This space is available for any additional component or content */}
+                <SellerProducts />
                 <div className="mt-auto"> {/* Optional content area */}
                   {/* Optional: Add content here */}
                 </div>
