@@ -5,11 +5,13 @@ import { getProduct, updateProduct } from '../../APIs/productAPI';
 
 import '../../index.css';
 
+// Load Product by ID
 export async function loadProduct({ params }) {
     const product = await getProduct(params.productId)
     return product
 }
 
+// Save Product to 
 export async function saveProduct({ request, params }) {
     const formData = await request.formData();
     const newData = Object.fromEntries(formData);

@@ -1,4 +1,4 @@
- require("dotenv").config();
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const {
@@ -24,14 +24,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 app.use(express.json());
 app.use(passport.initialize());
-app.use((req, res, next) => {
-  console.log("Debugging Middleware: ", {
-    body: req.body,
-    params: req.params,
-    query: req.query,
-  });
-  next();
-});
 
 // Middleware to populate all parents
 const populateAllParents = async (req, res, next) => {
@@ -147,7 +139,6 @@ app.post("/addCategory", async (req, res) => {
     await newCategory.save();
     res.status(201).json(newCategory);
   } catch (error) {
-    console.log("Error:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
@@ -246,7 +237,6 @@ app.get("/sellers", async (req, res) => {
 
 // Update a seller's status by Email
 app.patch("/sellers/:email", getSellerByEmail, async (req, res) => {
-  console.log(req.seller);
   try {
     const { status } = req.body;
 
@@ -271,7 +261,6 @@ async function getSellerByEmail(req, res, next) {
       return res.status(404).json({ message: "Seller not found" });
     }
     req.seller = seller;
-    console.log(req.seller);
     next();
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
@@ -294,8 +283,6 @@ async function getSellerFromJwt(req, res, next) {
     // Decode the token without verifying it to inspect its payload
     const decoded = jwt.decode(token);
 
-    console.log("Decoded JWT:", decoded);
-
     if (!decoded || !decoded.id) {
       return res.status(401).json({ message: "Invalid token" });
     }
@@ -308,7 +295,6 @@ async function getSellerFromJwt(req, res, next) {
     }
 
     req.seller = seller;
-    console.log("Seller data from JWT:", req.seller);
     next();
   } catch (error) {
     console.error(error); // Log the error to get more details in case of a server error
@@ -316,12 +302,11 @@ async function getSellerFromJwt(req, res, next) {
   }
 }
 
-
 // CREATE a new product
 app.post(
   "/products",
   passport.authenticate("jwt", { session: false }),
-  getSellerFromJwt, // Use the new middleware here
+  getSellerFromJwt,
   checkRole("Seller"),
   async (req, res) => {
     if (req.seller.status !== "Approved") {
@@ -339,7 +324,6 @@ app.post(
         category,
         price,
         seller: req.seller._id,
-        // basicAttributes,
       });
 
       res.status(201).json({ message: "Product added", newProduct });
@@ -363,7 +347,10 @@ app.get(
     }
     try {
       const sellerId = req.seller._id;
-      const products = await Product.find({ seller: sellerId }).populate({path: 'category', select: 'name -_id'});
+      const products = await Product.find({ seller: sellerId }).populate({
+        path: "category",
+        select: "name -_id",
+      });
       res.status(200).json(products);
     } catch (error) {
       res.status(500).json({ message: "Could not fetch products" });
@@ -443,17 +430,20 @@ app.get("/sellerOrders", getSellerFromJwt, async (req, res) => {
 
   try {
     // Find orders containing products sold by the seller
-    const orders = await Order.find({ "product.seller": sellerId })
-      .populate('product.productId'); // Populate product details
+    const orders = await Order.find({ "product.seller": sellerId }).populate(
+      "product.productId"
+    ); // Populate product details
 
     // Filter the products in each order to only include products sold by the current seller
-    orders.forEach(order => {
-      order.product = order.product.filter(prod => prod.seller.equals(sellerId));
+    orders.forEach((order) => {
+      order.product = order.product.filter((prod) =>
+        prod.seller.equals(sellerId)
+      );
     });
 
     // Fetch additional customer details separately
-    for(let order of orders) {
-      order.customer = await Customer.findById(order.customer).select('email');
+    for (let order of orders) {
+      order.customer = await Customer.findById(order.customer).select("email");
     }
 
     res.status(200).json(orders);
@@ -463,59 +453,67 @@ app.get("/sellerOrders", getSellerFromJwt, async (req, res) => {
   }
 });
 
+app.patch(
+  "/updateProductStatus/:orderId/:productId",
+  getSellerFromJwt,
+  async (req, res) => {
+    const { orderId, productId } = req.params;
+    const { sellerStatus } = req.body;
+    const sellerId = req.seller._id;
 
-
-app.patch("/updateProductStatus/:orderId/:productId", getSellerFromJwt, async (req, res) => {
-  const { orderId, productId } = req.params;
-  const { sellerStatus } = req.body; 
-  const sellerId = req.seller._id; 
-  
-  // Validate the sellerStatus value before proceeding
-  if (!['Canceled', 'Shipped', 'Pending'].includes(sellerStatus)) {
-    return res.status(400).json({ message: "Invalid seller status value" });
-  }
-
-  try {
-    const order = await Order.findById(orderId);
-    
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-    
-    console.log("Order Products:", JSON.stringify(order.product, null, 2)); // Log to see the actual product details in the order
-    console.log("Seller ID from token:", sellerId); // Log to see the actual seller ID from the token
-  
-    const productIndex = order.product.findIndex(
-      (p) => p._id.toString() === productId && p.seller.toString() === sellerId.toString()
-    );
-    
-    
-    if (productIndex === -1) {
-      return res.status(404).json({ message: "Product not found in order or you are not authorized to update this product" });
+    // Validate the sellerStatus value before proceeding
+    if (!["Canceled", "Shipped", "Pending"].includes(sellerStatus)) {
+      return res.status(400).json({ message: "Invalid seller status value" });
     }
 
-    // Update the product status in the order
-    order.product[productIndex].sellerStatus = sellerStatus; 
+    try {
+      const order = await Order.findById(orderId);
 
-    await order.save();
-    res.status(200).json(order);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error updating product status", error: error.message });
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      const productIndex = order.product.findIndex(
+        (p) =>
+          p._id.toString() === productId &&
+          p.seller.toString() === sellerId.toString()
+      );
+
+      if (productIndex === -1) {
+        return res
+          .status(404)
+          .json({
+            message:
+              "Product not found in order or you are not authorized to update this product",
+          });
+      }
+
+      // Update the product status in the order
+      order.product[productIndex].sellerStatus = sellerStatus;
+
+      await order.save();
+      res.status(200).json(order);
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({
+          message: "Error updating product status",
+          error: error.message,
+        });
+    }
   }
-});
-
+);
 
 app.get("/sales-statistics/", getSellerFromJwt, async (req, res) => {
   try {
-    const sellerId = req.seller._id; // Adjusted to use req.seller._id to get the seller ID
+    const sellerId = req.seller._id;
 
     // Validate seller ID
     const seller = await Seller.findById(sellerId);
     if (!seller) {
       return res.status(404).json({ message: "Seller not found" });
     }
-    console.log(seller);
 
     // Gather sales statistics
     const orders = await Order.find().populate({
@@ -543,7 +541,7 @@ app.get("/sales-statistics/", getSellerFromJwt, async (req, res) => {
           } else if (product.sellerStatus === "Canceled") {
             stats.canceled += 1;
           }
-    
+
           if (product.customerStatus === "Accepted") {
             stats.accepted += 1;
           } else if (product.customerStatus === "Rejected") {
@@ -554,16 +552,14 @@ app.get("/sales-statistics/", getSellerFromJwt, async (req, res) => {
         }
       });
     });
-    
+
     res.json({ statistics: stats });
-  
   } catch (error) {
     res
       .status(500)
       .json({ message: "Internal server error", error: error.message });
   }
 });
-
 
 //==============Order CRUD for customer===============//
 
@@ -581,13 +577,10 @@ async function getCustomerFromJwt(req, res, next) {
     // Decode the token without verifying it to inspect its payload
     const decoded = jwt.decode(token);
 
-    console.log("Decoded JWT:", decoded);
-
     if (!decoded || !decoded.id) {
       return res.status(401).json({ message: "Invalid token" });
     }
 
-    // Now we use the ID from the decoded JWT payload to find the customer
     const customer = await Customer.findById(decoded.id);
 
     if (!customer) {
@@ -595,7 +588,6 @@ async function getCustomerFromJwt(req, res, next) {
     }
 
     req.customer = customer;
-    console.log("Customer data from JWT:", req.customer);
     next();
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
@@ -604,10 +596,7 @@ async function getCustomerFromJwt(req, res, next) {
 
 // Place an order
 app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
-  console.log("pp", req.customer);
-  console.log("Request Body:", req.body);
-  
-  const { cart, totalPrice } = req.body;  // Extract totalPrice from req.body
+  const { cart, totalPrice } = req.body; // Extract totalPrice from req.body
 
   try {
     // Create a new order with initial status "New"
@@ -615,13 +604,8 @@ app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
       customer: req.customer._id,
       product: cart, // Use the "cart" array as the products in the order
       status: "New",
-      totalPrice,  // Save the totalPrice to the database
+      totalPrice, // Save the totalPrice to the database
     });
-    
-    console.log("Cart:", cart); // Log the cart for debugging
-    console.log("Total Price:", totalPrice); // Log the total price for debugging
-
-    console.log("Order created:", order); // Log the created order if it's successful
 
     res.status(201).json(order);
   } catch (error) {
@@ -632,23 +616,18 @@ app.post("/placeOrder", getCustomerFromJwt, async (req, res) => {
   }
 });
 
-
-
-
 // Customer Order Interaction
 app.get("/customerOrders", getCustomerFromJwt, async (req, res) => {
   try {
     // Find orders for the customer using req.customer._id
-    const orders = await Order.find({ customer: req.customer._id })
-                         .populate({
-                             path: 'product.productId',
-                             populate: {
-                                 path: 'seller category',
-                                 select: 'businessName name' 
-                             }
-                         });
+    const orders = await Order.find({ customer: req.customer._id }).populate({
+      path: "product.productId",
+      populate: {
+        path: "seller category",
+        select: "businessName name",
+      },
+    });
 
-    console.log("here is the thing", orders);
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: "Error fetching customer orders" });
@@ -656,17 +635,15 @@ app.get("/customerOrders", getCustomerFromJwt, async (req, res) => {
 });
 
 // Get customer details
-app.get('/customer', getCustomerFromJwt, async (req, res) => {
+app.get("/customer", getCustomerFromJwt, async (req, res) => {
   try {
     // Access the customer directly through req.customer
     res.json(req.customer);
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal server error');
+    res.status(500).send("Internal server error");
   }
 });
-
-
 
 // Customer can accept or reject products in their order
 app.patch(
@@ -683,20 +660,15 @@ app.patch(
       }
 
       // Check if the order belongs to the logged-in customer
-
-
-      // Check if the order belongs to the logged-in customer
       if (!order.customer.equals(req.customer._id)) {
-        return res.status(403).json({ message: "Not authorized to update this order" });
+        return res
+          .status(403)
+          .json({ message: "Not authorized to update this order" });
       }
 
-      // Find the product in the order
-      console.log('Order products:', order.product);
-
-      const productInOrder = order.product.find((product) => 
-      product._id.equals(productId)
-    );
-    
+      const productInOrder = order.product.find((product) =>
+        product._id.equals(productId)
+      );
 
       if (!productInOrder) {
         return res
@@ -726,25 +698,18 @@ app.patch(
   }
 );
 
-
-
-
-
-
 // Endpoint to get all products for a customer
-app.get("/productCustomer",getCustomerFromJwt ,async (req, res) => {
+app.get("/productCustomer", getCustomerFromJwt, async (req, res) => {
   try {
-    // Assuming you have a customer ID available in the request, you can use it to find products
-    // Also, populate the 'seller' field to get the seller's information
-    const products = await Product.find().populate('seller');
+    const products = await Product.find().populate("seller");
 
     res.status(200).json(products);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching products", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching products", error: error.message });
   }
 });
-
-
 
 // Define a route to get a product by its ID
 app.get("/getProduct/:productId", async (req, res) => {
@@ -752,18 +717,21 @@ app.get("/getProduct/:productId", async (req, res) => {
     const productId = req.params.productId;
 
     // Use Mongoose to find the product by its ID
-    const product = await Product.findById(productId).populate({path: 'category', select: 'name -_id'});
+    const product = await Product.findById(productId).populate({
+      path: "category",
+      select: "name -_id",
+    });
 
     if (!product) {
-      // If the product with the given ID is not found, return an error
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // If the product is found, return it in the response
     res.status(200).json(product);
   } catch (error) {
     // Handle any errors that occur during the database query
-    res.status(500).json({ message: "Error fetching product", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching product", error: error.message });
   }
 });
 
@@ -773,29 +741,26 @@ app.get("/searchProduct", async (req, res) => {
     const { query } = req.query;
 
     // Use Mongoose to find products that match the search query
-    const products = await Product.find({ name: new RegExp(query, 'i') });
+    const products = await Product.find({ name: new RegExp(query, "i") });
 
     if (!products.length) {
-      // If no products match the search query, return a not found message
       return res.status(404).json({ message: "No products found" });
     }
-
-    // If products are found, return them in the response
     res.status(200).json(products);
   } catch (error) {
     // Handle any errors that occur during the database query
-    res.status(500).json({ message: "Error fetching products", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching products", error: error.message });
   }
 });
-
-
 
 //=============Sign/Auth==========//
 
 // Register a new user
 
 app.post("/register", async (req, res) => {
-  const { email,phone, password, role, businessName } = req.body;
+  const { email, phone, password, role, businessName } = req.body;
 
   // Hash the password (you'll need to install bcrypt)
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -805,7 +770,13 @@ app.post("/register", async (req, res) => {
   if (role === "Admin") {
     newUser = new WH_Admin({ email, password: hashedPassword, role });
   } else if (role === "Seller") {
-    newUser = new Seller({ email, password: hashedPassword, role, phone, businessName });
+    newUser = new Seller({
+      email,
+      password: hashedPassword,
+      role,
+      phone,
+      businessName,
+    });
   } else {
     newUser = new Customer({ email, password: hashedPassword, role, phone });
   }
@@ -815,12 +786,12 @@ app.post("/register", async (req, res) => {
 });
 
 //=============Login/Auth============//
-   
+
 // Login
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  // Find user by email (you'll need to search in all collections)
+  // Find user by email
 
   let user =
     (await WH_Admin.findOne({ email })) ||
